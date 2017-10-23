@@ -1,7 +1,7 @@
 /*
 CS 455 - Project Part 1 - DES Implementation
-Brandon Crane, Matt Frederick, Monica Singh, & George Wood
-9/30/17
+Brandon Crane, Monica Singh, & George Wood
+10/31/17
 */
 
 #include <iostream>
@@ -17,7 +17,7 @@ const short CHARS_IN_BLOCK = 8;
 //Number of bits in a char variable
 const short BITS_IN_CHAR = 8;
 //Number of rounds the algorithm should operate for
-const short ROUND_COUNT = 8;
+const short ROUND_COUNT = 16;
 //Whether or not testing statements should be printed
 const bool VERBOSE = false;
 
