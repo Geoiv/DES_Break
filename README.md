@@ -125,3 +125,10 @@ DECRYPTION
         Part-2/Submission-A & Part-2/Submission-B.
       + Feel free to email me if you have any questions.
 
+
+
+      http://www.cs.dartmouth.edu/~campbell/cs50/socketprogramming.html
+      https://en.wikipedia.org/wiki/Berkeley_sockets#Client-server_example_using_TCP
+      http://www.bogotobogo.com/cplusplus/sockets_server_client.php
+      http://beej.us/guide/bgnet/
+
