@@ -9,14 +9,13 @@ using namespace std;
 
 int main()
 {
-  vector<int> socketFDs;
-  int servFileDesc;
   string targetIP;
   /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
   BOTTOM ONE IS FOR LOCALHOST TESTING*/
   //targetIP = "150.243.146.141";
   //targetIP = "127.0.0.1";
-
+  vector<int> socketFDs;
+  int servFileDesc;
   //TODO is a new sockaddr_in required for each connection?
   struct sockaddr_in servAddress;
   memset(&servAddress, 0, sizeof(servAddress));
