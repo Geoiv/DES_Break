@@ -125,3 +125,10 @@ Extra Credit: (for 7.5 points)
   Part-2/Submission-A & Part-2/Submission-B.
 + Feel free to email me if you have any questions.
 
+
+TODO:
+ + Make sure socket identifiers are unique
+ + Research AWS
+ + Get threads working - https://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
+ + Separate Client/ Server code
+ + Make DES class
