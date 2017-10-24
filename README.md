@@ -126,9 +126,9 @@ Extra Credit: (for 7.5 points)
 + Feel free to email me if you have any questions.
 
 
-TODO:
- + Make sure socket identifiers are unique
- + Research AWS
- + Get threads working - https://www.tutorialspoint.com/cplusplus/cpp_multithreading.htm
- + Separate Client/ Server code
- + Make DES class
+
+      http://www.cs.dartmouth.edu/~campbell/cs50/socketprogramming.html
+      https://en.wikipedia.org/wiki/Berkeley_sockets#Client-server_example_using_TCP
+      http://www.bogotobogo.com/cplusplus/sockets_server_client.php
+      http://beej.us/guide/bgnet/
+
