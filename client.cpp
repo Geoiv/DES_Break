@@ -5,14 +5,19 @@
 #include <cstring>
 #include "DES.cpp"
 #include "DESBreakConsts.h"
+using namespace std;
 
 int main()
 {
   vector<int> socketFDs;
   int servFileDesc;
   string targetIP;
-  //targetIP = "150.243.146.14";
-  targetIP = "127.0.0.1";
+  /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
+  BOTTOM ONE IS FOR LOCALHOST TESTING*/
+  //targetIP = "150.243.146.141";
+  //targetIP = "127.0.0.1";
+
+  //TODO is a new sockaddr_in required for each connection?
   struct sockaddr_in servAddress;
   memset(&servAddress, 0, sizeof(servAddress));
   servAddress.sin_family = AF_INET;
@@ -37,6 +42,7 @@ int main()
       sizeof(servAddress)) == -1)
     {
       perror("Problem in connecting to the server");
+      close(servFileDesc);
       exit(EXIT_FAILURE);
     }
 
@@ -62,18 +68,6 @@ int main()
       cout << "Message received from server: " << recMsg << endl;
     }
 
-  }
-
-  bool stillLooping = false;
-  while (stillLooping)
-  {
-    if (recv(servFileDesc, recMsg, MAX_LINE, 0) == 0)
-    {
-      //error: server terminated prematurely
-      perror("The server terminated prematurely");
-      exit(EXIT_FAILURE);
-    }
-    cout << "String received from the server: " << recMsg << endl;
   }
   close(servFileDesc);
   return EXIT_SUCCESS;

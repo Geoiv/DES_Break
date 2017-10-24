@@ -4,6 +4,7 @@
 #include <cstring>
 #include "DES.cpp"
 #include "DESBreakConsts.h"
+using namespace std;
 
 int main()
 {
@@ -35,7 +36,7 @@ int main()
     exit(EXIT_FAILURE);
   }
   */
-  if (bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
+  if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
   {
     perror("Socket binding failed.");
     close(servFileDesc);
