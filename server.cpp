@@ -4,8 +4,6 @@
 #include <cstring>
 #include "DES.cpp"
 #include "DESBreakConsts.h"
-using namespace std;
-
 
 int main()
 {
