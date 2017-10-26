@@ -1,11 +1,18 @@
+
+#include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <cstring>
+
 #include "DES.cpp"
 #include "DESBreakConsts.h"
 using namespace std;
+
+void parentMethod(int clientID)
+{
+  
+}
 
 int main()
 {
@@ -13,61 +20,53 @@ int main()
   /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
   BOTTOM ONE IS FOR LOCALHOST TESTING*/
   //targetIP = "150.243.146.141";
-  //targetIP = "127.0.0.1";
-  vector<int> socketFDs;
-  int servFileDesc;
-  //TODO is a new sockaddr_in required for each connection?
-  struct sockaddr_in servAddress;
-  memset(&servAddress, 0, sizeof(servAddress));
-  servAddress.sin_family = AF_INET;
-  servAddress.sin_addr.s_addr = inet_addr(targetIP.c_str());
-  servAddress.sin_port =  htons(PORT_NO);
-  const char* sendMsg = "Hello team member!";
+  targetIP = "127.0.0.1";
+  int cliSockFileDesc;
+
+  struct sockaddr_in clientAddress;
+  memset(&clientAddress, 0, sizeof(clientAddress));
+  clientAddress.sin_family = AF_INET;
+  clientAddress.sin_addr.s_addr = inet_addr(targetIP.c_str());
+  clientAddress.sin_port =  htons(PORT_NO);
   char recMsg[MAX_LINE];
+  int clientID;
 
-  for (short i = 0; i < SERVER_COUNT; i++)
+  //TODO protocol?
+  cliSockFileDesc = socket(AF_INET, SOCK_STREAM, 0);
+  if (cliSockFileDesc == -1)
   {
-    //TODO protocol?
-    servFileDesc = socket(AF_INET, SOCK_STREAM, 0);
-    socketFDs.push_back(servFileDesc);
-    if (servFileDesc == -1)
-    {
-      perror("Socket descriptor creation failed.");
-      exit(EXIT_FAILURE);
-    }
-
-    //Connection of the client to the socket
-    if (connect(servFileDesc, (struct sockaddr *) &servAddress,
-      sizeof(servAddress)) == -1)
-    {
-      perror("Problem in connecting to the server");
-      close(servFileDesc);
-      exit(EXIT_FAILURE);
-    }
-
-    cout << "Message sending to server: " << sendMsg << endl;
-    int sendResult = send(servFileDesc, sendMsg, strlen(sendMsg), 0);
-    if (sendResult == -1)
-    {
-      perror("Sending message failed.");
-      exit(EXIT_FAILURE);
-    }
-    int receiveResult = recv(servFileDesc, recMsg, MAX_LINE, 0);
-    if (receiveResult == 0)
-    {
-      cout << "No available messages. " << endl;
-    }
-    else if (receiveResult == -1)
-    {
-      perror("Receiving message failed.");
-      exit(EXIT_FAILURE);
-    }
-    else
-    {
-      cout << "Message received from server: " << recMsg << endl;
-    }
-
+    perror("Socket descriptor creation failed.");
+    exit(EXIT_FAILURE);
   }
-  close(servFileDesc);
+
+  //Connection of the client to the socket
+  if (connect(cliSockFileDesc, (struct sockaddr *) &clientAddress,
+    sizeof(clientAddress)) == -1)
+  {
+    close(cliSockFileDesc);
+    perror("Problem in connecting to the server");
+    exit(EXIT_FAILURE);
+  }
+
+  int receiveResult = recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
+  if (receiveResult == 0)
+  {
+    cout << "No available messages, or connection gracefully closed. " << endl;
+  }
+  else if (receiveResult == -1)
+  {
+    perror("Receiving message failed.");
+    exit(EXIT_FAILURE);
+  }
+  else
+  {
+    clientID = atoi(recMsg);
+  }
+
+  close(cliSockFileDesc);
   return EXIT_SUCCESS;
 }
+
+/*
+
+*/
