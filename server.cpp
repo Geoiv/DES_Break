@@ -8,6 +8,7 @@
 using namespace std;
 
 const int CLIENT_COUNT = 1;
+
 //TODO is a new sockaddr_in required for each connection?
 int main()
 {
@@ -37,14 +38,6 @@ int main()
     serverSockFDs.push_back(servFileDesc);
     //cout << "Server file descriptor created: " << servFileDesc << endl;
 
-    /*
-    int reuse = 1;
-    if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
-    {
-      perror("Socket option setting failed.");
-      exit(EXIT_FAILURE);
-    }
-    */
     if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
     {
       close(servFileDesc);
@@ -83,9 +76,19 @@ int main()
     close(connectFileDesc);
     close(servFileDesc);
   }
+
   for (unsigned int i = 0; i < serverSockFDs.size(); i++)
   {
     close(serverSockFDs.at(i));
   }
   return EXIT_SUCCESS;
 }
+
+/*
+int reuse = 1;
+if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
+{
+  perror("Socket option setting failed.");
+  exit(EXIT_FAILURE);
+}
+*/
