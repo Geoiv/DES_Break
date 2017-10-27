@@ -7,8 +7,6 @@
 #include "DESBreakConsts.h"
 using namespace std;
 
-const int CLIENT_COUNT = 1;
-
 //TODO is a new sockaddr_in required for each connection?
 int main()
 {

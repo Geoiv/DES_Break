@@ -27,7 +27,7 @@ void *PrintHello(void *threadArg) {
    pthread_exit(NULL);
 }
 
-void *ThreadEncrypt(void *threadArg){
+void *ThreadDecrypt(void *threadArg){
    struct thread_data *threadData;
    threadData = (struct thread_data *) threadArg;
 
@@ -54,7 +54,6 @@ void *ThreadEncrypt(void *threadArg){
 int main () {
    pthread_t threads[NUM_THREADS];
    struct thread_data threadData[NUM_THREADS];
-   int resultCode;
    const long TOTAL_KEYS = pow(2, 56);
    const short TOTAL_THREADS = 60;
    short parentIndex = 0; // 0 - 11
@@ -79,7 +78,7 @@ int main () {
       parentKeySpaceStart + (i * threadKeySpaceOffset) << endl;
 
       // resultCode = pthread_create(&threads[i], NULL, PrintHello, (void *)&threadData[i]);
-      resultCode = pthread_create(&threads[i], NULL, ThreadEncrypt, (void *)&threadData[i]);
+      int resultCode = pthread_create(&threads[i], NULL, ThreadEncrypt, (void *)&threadData[i]);
 
       if (resultCode) {
          cout << "Error:unable to create thread," << resultCode << endl;
