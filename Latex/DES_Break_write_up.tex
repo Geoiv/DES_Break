@@ -1,0 +1,28 @@
+\documentclass[11pt]{article}
+
+\usepackage{setspace}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[parfill]{parskip}
+
+\title{DES - Security Through Obscurity}
+\author{Brandon Crane, Monica Singh,George Wood}
+\date{31 October 2017}
+
+\begin{document}
+\maketitle
+
+\thispagestyle{empty}
+
+\section{Individual Contributions}
+
+
+
+\section{Description}
+The C++ POSIX thread, or \texttt{pthread}, library was used for implementing the thread portion of the assignment. To create a connection between our machines we used the the C++ \texttt{sys/socket} and  \texttt{netinet/in}  libraries. The communication between the client and the server was created using IPv4 and TCP, with the socket set to using Port 3000. The program creates a connection between a server and twelve clients. Three of these clients will be our own machines, which was approved by Dr.Jaiswal, and the other nine will be AWS clients. The server will create a connection with the clients and assign a key space to each client. The server will then have twelve threads which are listening for responses from the clients. The clients will be running six threads. One of these threads will be a parent thread which will be listening for messages from the server. This thread will create five child threads and assign them with their key spaces. Once a child thread find the key, it will send a message to the server. The server will then send a message to the parent thread of the other clients. 
+
+
+\section{Code (C++)}
+\begin{verbatim}
+
+\end{verbatim}
+\end{document}
