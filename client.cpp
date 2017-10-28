@@ -7,6 +7,8 @@
 #include <cmath>
 #include <pthread.h>
 #include <iostream>
+#include <fstream>
+#include <bitset>
 
 #include "DESCipher.h"
 #include "DESBreakConsts.h"
@@ -15,27 +17,66 @@ using namespace std;
 struct thread_data {
    int  threadId;
    long startingKeyNum;
+   int cliSockFileDesc;
+   vector<char> cipherText;
+   string plainText;
 };
 
-void *ThreadDecrypt(void *threadArg){
+void *ThreadDecrypt(void *threadArg)
+{
    struct thread_data *threadData;
    threadData = (struct thread_data *) threadArg;
 
-   unsigned long currentKey;
-   for (long i = 0; i < (THREAD_KEY_OFFSET + KEY_BUFFER); i++){
+   DESCipher cipher = DESCipher();
+   string decryptResults = "";
+   vector<char> cipherText = threadData->cipherText;
+   vector<bool> keyBits;
+
+   //Number of character groups that will need to be decrypted
+   short charGroupCount = cipherText.size()/CHARS_IN_BLOCK;
+
+   unsigned long long currentKey;
+   for (unsigned long long i = 0; i < (THREAD_KEY_OFFSET + KEY_BUFFER); i++){
       currentKey = threadData->startingKeyNum + i;
       cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
       " Starting Key Number : " << threadData->startingKeyNum << "    " <<
       " Current Key Number : " << threadData->startingKeyNum + i << "    " << endl;
-      bitset<56> keyBits (currentKey);
-      cout << "keyBits: " << keyBits << endl;
+      bitset<BITS_IN_KEY> keyBitset (currentKey);
+      cout << "keyBits: " << keyBitset << endl;
+      for(short j = BITS_IN_KEY - 1; j >= 0; j--)
+      {
+        keyBits.push_back(keyBitset[j]);
+      }
 
-      // TODO call decrypt with the keyBits and the plaintext bits?
+      for (short i = 0; i < charGroupCount; i++)
+      {
+        //Holds characters of the current group
+        vector<char> curGroupChars;
+        //Current character group represented as bits
+        vector<bool> curCharGroup;
+        //Loads 8 characters into curGroupChars
+        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        {
+          curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
+        }
+        //Converts current group to bit representation
+        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        //Encrypts current group and appends output plaintext to plainText
+
+        decryptResults += cipher.decrypt(curCharGroup, keyBits);
+      }
+
+      if (decryptResults.compare(threadData->plainText))
+      {
+        const char* foundKey = to_string(threadData->startingKeyNum + i).c_str();
+        send(threadData->cliSockFileDesc, foundKey, sizeof(foundKey), 0);
+      }
    }
    pthread_exit(NULL);
 }
 
-void parentMethod(int clientID)
+void parentMethod(int clientID, int cliSockFileDesc, vector<char> cipherText,
+                  string plainText)
 {
    pthread_t threads[NUM_THREADS];
    struct thread_data threadData[NUM_THREADS];
@@ -45,10 +86,14 @@ void parentMethod(int clientID)
    long parentKeySpaceStart = (TOTAL_KEYS / CLIENT_COUNT) * clientID;
    cout << endl << "parentKeySpaceStart:  " << parentKeySpaceStart << endl;
 
-   for( int i = 0; i < NUM_THREADS; i++ ) {
+   for( int i = 0; i < NUM_THREADS; i++ )
+   {
       cout <<"main() : creating thread, " << i << endl;
       threadData[i].threadId = i;
       threadData[i].startingKeyNum = parentKeySpaceStart + (i * THREAD_KEY_OFFSET);
+      threadData[i].cliSockFileDesc = cliSockFileDesc;
+      threadData[i].cipherText = cipherText;
+      threadData[i].plainText = plainText;
 
       cout << "i: " << i << "  |  parentKeySpaceStart + (i * THREAD_KEY_OFFSET): " <<
       parentKeySpaceStart + (i * THREAD_KEY_OFFSET) << endl;
@@ -59,12 +104,91 @@ void parentMethod(int clientID)
          cout << "Error:unable to create thread," << resultCode << endl;
          exit(-1);
       }
+
+   }
+   char recMsg[MAX_LINE];
+   recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
+   if (recMsg[1] == '1')
+   {
+     //TODO end all threads, make the if condition better
    }
    pthread_exit(NULL);
 }
 
+vector<char> readInputAsVector(string inFileName)
+{
+  ifstream inTextFileStream;
+  inTextFileStream.open(inFileName, std::ios::binary);
+  //Vector to hold read characters
+  vector<char> readText;
+  //If file was succesfully opened
+  if (inTextFileStream.is_open())
+  {
+    char c;
+    //Pushes current char to readText
+    while (inTextFileStream.get(c))
+    {
+      readText.push_back(c);
+    }
+    inTextFileStream.close();
+    //Gets number of characters that must be padded
+    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
+    {
+      for(short i = 0; i < charsToPad; i++)
+      {
+        readText.push_back('x');
+      }
+    }
+  }
+  //File could not be opened
+  else
+  {
+    cout << "The file " << inFileName << "was not able to be opened." << endl;
+    inTextFileStream.close();
+  }
+  return readText;
+}
+
+string readInputAsString(string inFileName)
+{
+  ifstream inTextFileStream;
+  inTextFileStream.open(inFileName, std::ios::binary);
+  //Vector to hold read characters
+  //string readText;
+  //If file was succesfully opened
+  if (inTextFileStream.is_open())
+  {
+    string readText((istreambuf_iterator<char>(inTextFileStream)),
+                     istreambuf_iterator<char>());
+    inTextFileStream.close();
+    //Gets number of characters that must be padded
+    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
+    {
+      for(short i = 0; i < charsToPad; i++)
+      {
+        readText.push_back('x');
+      }
+    }
+    return readText;
+  }
+  //File could not be opened
+  else
+  {
+    cout << "The file " << inFileName << "was not able to be opened." << endl;
+    inTextFileStream.close();
+    return "File reading failed.";
+  }
+}
+
 int main()
 {
+  string cipherTextFileName = "ct.txt";
+  string plainTextFileName = "key.txt";
+  vector<char> cipherText = readInputAsVector(cipherTextFileName);
+  string plainText = readInputAsString(plainTextFileName);
+
   string targetIP;
   /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
   BOTTOM ONE IS FOR LOCALHOST TESTING*/
@@ -109,8 +233,9 @@ int main()
   }
   else
   {
+
     clientID = atoi(recMsg);
-    parentMethod(clientID);
+    parentMethod(clientID, cliSockFileDesc, cipherText, plainText);
   }
 
   close(cliSockFileDesc);
