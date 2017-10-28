@@ -15,17 +15,17 @@ struct thread_data {
    long threadKeySpaceOffset;
 };
 
-void *PrintHello(void *threadArg) {
-   struct thread_data *myData;
-   myData = (struct thread_data *) threadArg;
-
-   sleep(2);
-   cout << "Thread ID : " << myData->threadId << endl;
-   sleep(1);
-   cout << " Starting Key Number : " << myData->startingKeyNum << "    " << endl;
-
-   pthread_exit(NULL);
-}
+// void *PrintHello(void *threadArg) {
+//    struct thread_data *myData;
+//    myData = (struct thread_data *) threadArg;
+//
+//    sleep(2);
+//    cout << "Thread ID : " << myData->threadId << endl;
+//    sleep(1);
+//    cout << " Starting Key Number : " << myData->startingKeyNum << "    " << endl;
+//
+//    pthread_exit(NULL);
+// }
 
 void *ThreadDecrypt(void *threadArg){
    struct thread_data *threadData;

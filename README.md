@@ -112,7 +112,7 @@ Part-2/Submission-B.
 
 Extra Credit: (for 7.5 points)
 + You must use a cloud computing platform (like Amazon AWS, Microsoft Azure etc.)
-+ Create atleast 7 instances of VMs (like AWS EC2) on your cloud platform.
++ Create at least 7 instances of VMs (like AWS EC2) on your cloud platform.
 + These 7 instances would work just like an extension to your 5 primary
   computers created in Step-1 above.
 + Each of these instance must perform exactly the same brute force attack like
