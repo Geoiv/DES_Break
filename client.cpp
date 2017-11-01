@@ -13,7 +13,8 @@
 #include "DESBreakConsts.h"
 using namespace std;
 
-struct thread_data {
+struct thread_data
+{
    int  threadId;
    long startingKeyNum;
    int cliSockFileDesc;
@@ -107,11 +108,6 @@ void parentMethod(int clientID, int cliSockFileDesc, vector<char> cipherText,
    }
    char recMsg[MAX_LINE];
    recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
-   if (recMsg[1] == '1')
-   {
-     //TODO end all threads, make the if condition better
-   }
-   pthread_exit(NULL);
 }
 
 vector<char> readInputAsVector(string inFileName)
@@ -203,6 +199,7 @@ int main()
   char recMsg[MAX_LINE];
   int clientID;
 
+  // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
   cliSockFileDesc = socket(AF_INET, SOCK_STREAM, 0);
   if (cliSockFileDesc == -1)
   {
@@ -239,7 +236,3 @@ int main()
   close(cliSockFileDesc);
   return EXIT_SUCCESS;
 }
-
-/*
-
-*/
