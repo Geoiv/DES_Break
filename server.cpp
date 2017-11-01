@@ -145,7 +145,7 @@ int main()
 
   // If something is recieved, the client found the right key.
   // Now tell all other clients to stop running.
-  const char* endMessage = "Key found. Stop Running.";
+  const char* endMessage = "STOP";
   for (unsigned short i = 0; i < connectSockFDs.size(); i++)
   {
     // Stop all Client programs by sending them a message.

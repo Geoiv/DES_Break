@@ -13,7 +13,7 @@ using namespace std;
 
 DESCipher::DESCipher()
 {
-  
+
 }
 
 //IP Table, takes in vector of size 64, permutes it, and modifies

@@ -20,7 +20,6 @@ const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
 // mathematical errors.
-const unsigned short KEY_BUFFER = 3;
 const int BITS_IN_KEY = 64;
 
 struct thread_data
@@ -38,15 +37,17 @@ void *ThreadDecrypt(void *threadArg)
    threadData = (struct thread_data *) threadArg;
 
    DESCipher cipher;
-   string decryptResults = "";
+   string decryptResults;
    vector<char> cipherText = threadData->cipherText;
    vector<bool> keyBits;
 
    //Number of character groups that will need to be decrypted
    short charGroupCount = cipherText.size()/CHARS_IN_BLOCK;
 
-   unsigned long long currentKey;
-   for (unsigned long long i = 0; i < (THREAD_KEY_OFFSET + KEY_BUFFER); i++){
+   unsigned long currentKey;
+   for (unsigned long i = 0; i < (THREAD_KEY_OFFSET); i++)
+   {
+      decryptResults = "";
       currentKey = threadData->startingKeyNum + i;
       cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
       " Starting Key Number : " << threadData->startingKeyNum << "    " <<
@@ -58,16 +59,16 @@ void *ThreadDecrypt(void *threadArg)
         keyBits.push_back(keyBitset[j]);
       }
 
-      for (short i = 0; i < charGroupCount; i++)
+      for (int j = 0; j < charGroupCount; j++)
       {
         //Holds characters of the current group
         vector<char> curGroupChars;
         //Current character group represented as bits
         vector<bool> curCharGroup;
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
-          curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
+          curGroupChars.push_back(cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
         //Converts current group to bit representation
         curCharGroup = DESCipher::charsToBits(curGroupChars);
@@ -75,10 +76,9 @@ void *ThreadDecrypt(void *threadArg)
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
       }
-
-      if (decryptResults.compare(threadData->plainText))
+      if (decryptResults.compare(threadData->plainText) == 0)
       {
-        const char* foundKey = to_string(threadData->startingKeyNum + i).c_str();
+        const char* foundKey = to_string(currentKey).c_str();
         send(threadData->cliSockFileDesc, foundKey, sizeof(foundKey), 0);
       }
    }
@@ -191,7 +191,7 @@ string readInputAsString(string inFileName)
 int main()
 {
   string cipherTextFileName = "ct.txt";
-  string plainTextFileName = "key.txt";
+  string plainTextFileName = "pt.txt";
   vector<char> cipherText = readInputAsVector(cipherTextFileName);
   string plainText = readInputAsString(plainTextFileName);
 
