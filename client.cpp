@@ -204,7 +204,6 @@ int main()
   char recMsg[MAX_LINE];
   int clientID;
 
-  //TODO protocol?
   cliSockFileDesc = socket(AF_INET, SOCK_STREAM, 0);
   if (cliSockFileDesc == -1)
   {
