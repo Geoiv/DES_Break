@@ -19,46 +19,42 @@ void ListenForClient(void * threadArg)
   struct thread_data *threadData;
   threadData = (struct thread_data *) threadArg;
 
-  // Refactor for each threadArg
-  // int receiveResult = recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
-  // if (receiveResult == 0)
-  // {
-  //   cout << "No available messages, or connection gracefully closed. " << endl;
-  // }
-  // else if (receiveResult == -1)
-  // {
-  //   perror("Receiving message failed.");
-  //   exit(EXIT_FAILURE);
-  // }
-  // else
-  // {
-  //   clientID = atoi(recMsg);
-  //   parentMethod(clientID);
-  // }
+  char recMsg[MAX_LINE];
+  int receiveResult = recv(threadData->clientID, recMsg, MAX_LINE, 0);
+  if (receiveResult == 0)
+  {
+    cout << "No available messages, or connection gracefully closed. " << endl;
+  }
+  else if (receiveResult == -1)
+  {
+    perror("Receiving message from client failed.");
+    exit(EXIT_FAILURE);
+  }
+  else
+  {
+    clientID = atoi(recMsg);
+    parentMethod(clientID);
+  }
 
-  // receive
-  // after receive,
-  // If something is recieved, it is the correct key.
+  // If something is recieved, the client found the right key.
   // Now tell all other clients to stop running.
-  if ()
+  if (recMsg[1] == '1')   // what should this condition be?
   {
     const char* endMessage = "Key found. Stop Running.";
     for (short i = 0; i < threadData->allSockFDs.size(); i++)
     {
-      // Stop Client programs by sending them a message.
-      // Do something with allSockFDs(i)
+      // Stop all Client programs by sending them a message.
       int sendResult = send(allSockFDs(i), endMessage, sizeof(endMessage), 0);
       if (sendResult == -1)
       {
-        // close(connectFileDesc);
-        // close(servFileDesc);
+        close(connectFileDesc);
+        close(servFileDesc);
         cout << "Issue telling client #" << i << " to stop executing." << endl;
         perror("Stopping client failed.");
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
       }
     }
   }
-
   pthread_exit(NULL);
 }
 
@@ -78,7 +74,6 @@ int main()
   vector<int> connectSockFDs;
   for (int i = 0; i < CLIENT_COUNT; i++)
   {
-    //TODO protocol?
     // TODO: add this description to Client
     // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
     int servFileDesc = socket(AF_INET, SOCK_STREAM, 0);
@@ -158,12 +153,3 @@ int main()
   }
   return EXIT_SUCCESS;
 }
-
-/*
-int reuse = 1;
-if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
-{
-  perror("Socket option setting failed.");
-  exit(EXIT_FAILURE);
-}
-*/
