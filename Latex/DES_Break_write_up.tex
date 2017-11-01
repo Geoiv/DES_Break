@@ -14,11 +14,12 @@
 \thispagestyle{empty}
 
 \section{Individual Contributions}
-
-
+All team members met up to work on the program together. George focused on creating the TCP connection between the computers. Brandon focused on the code to create the threads.
+Monica focused on setting up her machine so that the pthread and socket libraries
+could be executable.
 
 \section{Description}
-The C++ POSIX thread, or \texttt{pthread}, library was used for implementing the thread portion of the assignment. To create a connection between our machines we used the the C++ \texttt{sys/socket} and  \texttt{netinet/in}  libraries. The communication between the client and the server was created using IPv4 and TCP, with the socket set to using Port 3000. The program creates a connection between a server and twelve clients. Three of these clients will be our own machines, which was approved by Dr.Jaiswal, and the other nine will be AWS clients. The server will create a connection with the clients and assign a key space to each client. The server will then have twelve threads which are listening for responses from the clients. The clients will be running six threads. One of these threads will be a parent thread which will be listening for messages from the server. This thread will create five child threads and assign them with their key spaces. Once a child thread find the key, it will send a message to the server. The server will then send a message to the parent thread of the other clients. 
+The C++ POSIX thread, or \texttt{pthread}, library was used for implementing the thread portion of the assignment. To create a connection between our machines we used the the C++ \texttt{sys/socket} and  \texttt{netinet/in}  libraries. The communication between the client and the server was created using IPv4 and TCP, with the socket set to using Port 3000. The program creates a connection between a server and twelve clients. Three of these clients will be our own machines, which was approved by Dr.Jaiswal, and the other nine will be AWS clients. The server will create a connection with the clients and assign a key space to each client. The server will then have twelve threads which are listening for responses from the clients. The clients will be running six threads. One of these threads will be a parent thread which will be listening for messages from the server. This thread will create five child threads and assign them with their key spaces. Once a child thread finds the key, it will send a message to the server. The server will then send a message to the parent thread of the other clients to inform them that the key has been found.
 
 
 \section{Code (C++)}
