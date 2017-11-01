@@ -37,7 +37,7 @@ void *ThreadDecrypt(void *threadArg)
    struct thread_data *threadData;
    threadData = (struct thread_data *) threadArg;
 
-   DESCipher cipher = DESCipher();
+   DESCipher cipher;
    string decryptResults = "";
    vector<char> cipherText = threadData->cipherText;
    vector<bool> keyBits;
