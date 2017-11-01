@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <cstring>
 #include "DESBreakConsts.h"
+#include "pthread_barrier.h"
 using namespace std;
 
 pthread_barrier_t threadBarrier;
@@ -14,7 +15,7 @@ struct thread_data
    int clientFileDesc;
 };
 
-void listenForClient(void * threadArg)
+void *listenForClient(void * threadArg)
 {
   struct thread_data *threadData;
   threadData = (struct thread_data *) threadArg;
