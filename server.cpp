@@ -6,6 +6,8 @@
 #include "DESBreakConsts.h"
 using namespace std;
 
+pthread_barrier_t threadBarrier;
+
 struct thread_data
 {
    int threadId;
@@ -29,13 +31,20 @@ void listenForClient(void * threadArg)
     perror("Receiving message from client failed.");
     exit(EXIT_FAILURE);
   }
-  //TODO print statement, decrement runningThreads
+  else
+  {
+    cout << "Key found by thread " << threadData->threadId << "!" << endl;
+    cout << "Key: " << recMsg << endl;
+    pthread_barrier_wait(&threadBarrier);
+  }
   pthread_exit(NULL);
 }
 
 //TODO is a new sockaddr_in required for each connection?
 int main()
 {
+  pthread_barrier_init(&threadBarrier, NULL, 2);
+
   struct sockaddr_in servAddress;
   memset(&servAddress, 0, sizeof(servAddress));
   servAddress.sin_family = AF_INET;
@@ -130,6 +139,8 @@ int main()
     }
   }
 
+  pthread_barrier_wait(&threadBarrier);
+  pthread_barrier_destroy(&threadBarrier);
 
   // If something is recieved, the client found the right key.
   // Now tell all other clients to stop running.

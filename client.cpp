@@ -8,10 +8,20 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <limits.h>
 
 #include "DESCipher.h"
 #include "DESBreakConsts.h"
 using namespace std;
+
+const unsigned long TOTAL_KEYS = ULONG_MAX;
+const short NUM_THREADS = 1;
+const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
+const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
+// Have threads explore a few more keys than they're assigned to account for
+// mathematical errors.
+const unsigned short KEY_BUFFER = 3;
+const int BITS_IN_KEY = 64;
 
 struct thread_data
 {
@@ -108,6 +118,7 @@ void parentMethod(int clientID, int cliSockFileDesc, vector<char> cipherText,
    }
    char recMsg[MAX_LINE];
    recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
+   cout << recMsg << endl;
 }
 
 vector<char> readInputAsVector(string inFileName)
@@ -228,7 +239,6 @@ int main()
   }
   else
   {
-
     clientID = atoi(recMsg);
     parentMethod(clientID, cliSockFileDesc, cipherText, plainText);
   }
