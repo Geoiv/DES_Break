@@ -74,16 +74,18 @@ int main()
       exit(EXIT_FAILURE);
     }
 
+    /*
     int reuse = 1;
     if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
     {
       perror("Socket option setting failed.");
       exit(EXIT_FAILURE);
     }
+    */
 
     serverSockFDs.push_back(servFileDesc);
     cout << "Server file descriptor created: " << servFileDesc << endl;
-    for(int i=0; i< serverSockFDs.size(); i++)
+    for(unsigned int i=0; i< serverSockFDs.size(); i++)
     {
       cout << "serverSockFDs.at(" << i << ") : " << serverSockFDs.at(i) << endl;
     }
