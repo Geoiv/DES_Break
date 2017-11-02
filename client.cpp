@@ -15,7 +15,7 @@
 using namespace std;
 
 const unsigned long TOTAL_KEYS = ULONG_MAX;
-const short NUM_THREADS = 1;
+const short NUM_THREADS = 2;
 const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
@@ -24,8 +24,9 @@ const int BITS_IN_KEY = 64;
 
 struct thread_data
 {
-   int  threadId;
-   long startingKeyNum;
+   int threadId;
+   int clientId;
+   unsigned long startingKeyNum;
    int cliSockFileDesc;
    vector<char> cipherText;
    string plainText;
@@ -40,20 +41,38 @@ void *ThreadDecrypt(void *threadArg)
    string decryptResults;
    vector<char> cipherText = threadData->cipherText;
    vector<bool> keyBits;
+   unsigned int startingKeyNum = threadData->startingKeyNum;
 
    //Number of character groups that will need to be decrypted
    short charGroupCount = cipherText.size()/CHARS_IN_BLOCK;
+   unsigned long threadKeyRange;
+
+   if (threadData->clientId == (CLIENT_COUNT - 1) &&
+       threadData->threadId == (NUM_THREADS - 1))
+   {
+      threadKeyRange = ULONG_MAX - startingKeyNum;
+   }
+   else
+   {
+      threadKeyRange = THREAD_KEY_OFFSET;
+   }
+   unsigned long endingKeyNum = startingKeyNum + threadKeyRange;
+   cout << "Client: " << threadData->clientId << endl;
+   cout << "Thread: " << threadData->threadId << endl;
+   cout << "  Key range: " << threadKeyRange << endl;
+   cout << "  Space Min: " << startingKeyNum << endl;
+   cout << "  Space Max: " << endingKeyNum << endl;
 
    unsigned long currentKey;
-   for (unsigned long i = 0; i < (THREAD_KEY_OFFSET); i++)
+   for (unsigned long i = 0; i < threadKeyRange; i++)
    {
       decryptResults = "";
-      currentKey = threadData->startingKeyNum + i;
-      cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
-      " Starting Key Number : " << threadData->startingKeyNum << "    " <<
-      " Current Key Number : " << threadData->startingKeyNum + i << "    " << endl;
+      currentKey = startingKeyNum + i;
+      //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
+      //" Starting Key Number : " << startingKeyNum << "    " <<
+      //" Current Key Number : " << startingKeyNum + i << "    " << endl;
       bitset<BITS_IN_KEY> keyBitset (currentKey);
-      cout << "keyBits: " << keyBitset << endl;
+      //cout << "keyBits: " << keyBitset << endl;
       for(short j = BITS_IN_KEY - 1; j >= 0; j--)
       {
         keyBits.push_back(keyBitset[j]);
@@ -85,7 +104,7 @@ void *ThreadDecrypt(void *threadArg)
    pthread_exit(NULL);
 }
 
-void parentMethod(int clientID, int cliSockFileDesc, vector<char> cipherText,
+void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
                   string plainText)
 {
    pthread_t threads[NUM_THREADS];
@@ -93,24 +112,28 @@ void parentMethod(int clientID, int cliSockFileDesc, vector<char> cipherText,
 
    // Client gives the ID - the order in which client connected to server
    // The ID acts as a multiplier(0-11)
-   long parentKeySpaceStart = (TOTAL_KEYS / CLIENT_COUNT) * clientID;
+   unsigned long parentKeySpaceStart = (TOTAL_KEYS / CLIENT_COUNT) * clientId;
    cout << endl << "parentKeySpaceStart:  " << parentKeySpaceStart << endl;
 
    for( int i = 0; i < NUM_THREADS; i++ )
    {
       cout <<"main() : creating thread, " << i << endl;
       threadData[i].threadId = i;
+      threadData[i].clientId = clientId;
       threadData[i].startingKeyNum = parentKeySpaceStart + (i * THREAD_KEY_OFFSET);
       threadData[i].cliSockFileDesc = cliSockFileDesc;
       threadData[i].cipherText = cipherText;
       threadData[i].plainText = plainText;
 
-      cout << "i: " << i << "  |  parentKeySpaceStart + (i * THREAD_KEY_OFFSET): " <<
-      parentKeySpaceStart + (i * THREAD_KEY_OFFSET) << endl;
+      cout << "i: " << i << "  |  parentKeySpaceStart + " <<
+         "(i * THREAD_KEY_OFFSET): " << parentKeySpaceStart +
+         (i * THREAD_KEY_OFFSET) << endl;
 
-      int resultCode = pthread_create(&threads[i], NULL, ThreadDecrypt, (void *)&threadData[i]);
+      int resultCode = pthread_create(&threads[i], NULL, ThreadDecrypt, (
+         void *)&threadData[i]);
 
-      if (resultCode) {
+      if (resultCode)
+      {
          cout << "Error:unable to create thread," << resultCode << endl;
          exit(-1);
       }
@@ -208,7 +231,7 @@ int main()
   clientAddress.sin_addr.s_addr = inet_addr(targetIP.c_str());
   clientAddress.sin_port =  htons(PORT_NO);
   char recMsg[MAX_LINE];
-  int clientID;
+  int clientId;
 
   // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
   cliSockFileDesc = socket(AF_INET, SOCK_STREAM, 0);
@@ -239,8 +262,8 @@ int main()
   }
   else
   {
-    clientID = atoi(recMsg);
-    parentMethod(clientID, cliSockFileDesc, cipherText, plainText);
+    clientId = atoi(recMsg);
+    parentMethod(clientId, cliSockFileDesc, cipherText, plainText);
   }
 
   close(cliSockFileDesc);
