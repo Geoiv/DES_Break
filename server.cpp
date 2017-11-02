@@ -57,6 +57,7 @@ int main()
 
   vector<int> serverSockFDs;
   vector<int> connectSockFDs;
+
   for (int i = 0; i < CLIENT_COUNT; i++)
   {
     // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
@@ -72,14 +73,27 @@ int main()
       perror("Server socket descriptor creation failed.");
       exit(EXIT_FAILURE);
     }
+
+    int reuse = 1;
+    if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
+    {
+      perror("Socket option setting failed.");
+      exit(EXIT_FAILURE);
+    }
+
     serverSockFDs.push_back(servFileDesc);
-    //cout << "Server file descriptor created: " << servFileDesc << endl;
+    cout << "Server file descriptor created: " << servFileDesc << endl;
+    for(int i=0; i< serverSockFDs.size(); i++)
+    {
+      cout << "serverSockFDs.at(" << i << ") : " << serverSockFDs.at(i) << endl;
+    }
 
     if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
     {
       for (int j = 0; j <= i; j++)
       {
         close(serverSockFDs.at(j));
+        cout << "Closing... serverSockFDs.at(" << j << ") : " << serverSockFDs.at(j) << endl;
       }
       cout << "Issue in binding socket with client #" << i << "." <<
         endl;
