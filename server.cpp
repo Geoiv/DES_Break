@@ -7,129 +7,139 @@
 #include "pthread_barrier.h"
 using namespace std;
 
+//Barrier to prevent the main thread from prematurely ending program
 pthread_barrier_t threadBarrier;
 
+//Data passed to each child thread
 struct thread_data
 {
    int threadId;
    int clientFileDesc;
 };
 
+//Listens for a success message from a particular client
+//Ran be each child thread
 void *listenForClient(void * threadArg)
 {
+  //Data passed to thread
   struct thread_data *threadData;
   threadData = (struct thread_data *) threadArg;
 
+  //Waits for message from a specified client
   char recMsg[MAX_LINE];
   int receiveResult = recv(threadData->clientFileDesc, recMsg, MAX_LINE, 0);
   if (receiveResult == 0)
   {
+    //No available messages
     cout << "No available messages, or connection gracefully closed. " << endl;
   }
   else if (receiveResult == -1)
   {
-    cout << "Error receiving message from client" << threadData->threadId << "." << endl;
+    //Receiving failed
+    cout << "Error receiving message from client" <<
+      threadData->threadId << "." << endl;
     perror("Receiving message from client failed.");
     exit(EXIT_FAILURE);
   }
   else
   {
+    //Successful receiving
     cout << "Key found by thread " << threadData->threadId << "!" << endl;
     cout << "Key: " << recMsg << endl;
+    //Wait on the pthread barrier, allowing the main thread to continue running
     pthread_barrier_wait(&threadBarrier);
   }
   pthread_exit(NULL);
 }
 
-//TODO is a new sockaddr_in required for each connection?
-int main()
+//Establishes a server socket and returns its file descriptor
+int getServSocket()
 {
-  pthread_barrier_init(&threadBarrier, NULL, 2);
-
+  //Address struck for the server
   struct sockaddr_in servAddress;
   memset(&servAddress, 0, sizeof(servAddress));
   servAddress.sin_family = AF_INET;
   servAddress.sin_addr.s_addr = htonl(INADDR_ANY);
   servAddress.sin_port =  htons(PORT_NO);
 
+  //Used to activate the option for address reuse
+  const int reuse = 1;
+
+  //Establishes the server file descriptor
+  // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
+  int servFileDesc = socket(AF_INET, SOCK_STREAM, 0);
+  if (servFileDesc == -1)
+  {
+    perror("Server socket descriptor creation failed.");
+    exit(EXIT_FAILURE);
+  }
+  //Sets address reuse options
+  if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1);
+  {
+    close(servFileDesc);
+    perror("Socket option setting failed.");
+    exit(EXIT_FAILURE);
+  }
+
+  //Binds the socket file descriptor to an address and a port
+  if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
+  {
+    close(servFileDesc);
+    perror("Socket binding failed.");
+    exit(EXIT_FAILURE);
+  }
+
+  //Sets the number of connections the socket should listen for
+  if(listen(servFileDesc, MAX_CONNS) == -1)
+  {
+    //If listening fails
+    close(servFileDesc);
+    perror("Socket listening failed.");
+    exit(EXIT_FAILURE);
+  }
+  return servFileDesc;
+}
+
+//Establishes connections with a set number of other machines in order to
+//attempt a brute-force attack to break DES
+int main()
+{
+  //Initializes the pthread barrier
+  pthread_barrier_init(&threadBarrier, NULL, 2);
+
+  //Address struct for clients
   struct sockaddr_in clientAddress;
+  //Length of the client address
   socklen_t clientAddressLen;
 
-  vector<int> serverSockFDs;
+  //Gets file descriptor for the server's socket
+  int servFileDesc = getServSocket();
+
+  //Vector to contain the file descriptors for the connected sockets
   vector<int> connectSockFDs;
 
+  //For each client
   for (int i = 0; i < CLIENT_COUNT; i++)
   {
-    // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
-    int servFileDesc = socket(AF_INET, SOCK_STREAM, 0);
-    if (servFileDesc == -1)
-    {
-      for (int j = 0; j < i; j++)
-      {
-        close(j);
-      }
-      cout << "Issue in starting commmunication with client #" << i << "." <<
-        endl;
-      perror("Server socket descriptor creation failed.");
-      exit(EXIT_FAILURE);
-    }
-
-    /*
-    int reuse = 1;
-    if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) != 0);
-    {
-      perror("Socket option setting failed.");
-      exit(EXIT_FAILURE);
-    }
-    */
-
-    serverSockFDs.push_back(servFileDesc);
-    cout << "Server file descriptor created: " << servFileDesc << endl;
-    for(unsigned int i=0; i< serverSockFDs.size(); i++)
-    {
-      cout << "serverSockFDs.at(" << i << ") : " << serverSockFDs.at(i) << endl;
-    }
-
-    if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
-    {
-      for (int j = 0; j <= i; j++)
-      {
-        close(serverSockFDs.at(j));
-        cout << "Closing... serverSockFDs.at(" << j << ") : " << serverSockFDs.at(j) << endl;
-      }
-      cout << "Issue in binding socket with client #" << i << "." <<
-        endl;
-      perror("Socket binding failed.");
-      exit(EXIT_FAILURE);
-    }
-
-    if(listen(servFileDesc, 1) == -1)
-    {
-      for (int j = 0; j <= i; j++)
-      {
-        close(serverSockFDs.at(j));
-      }
-      cout << "Issue in starting commmunication with client #" << i << "." <<
-        endl;
-      perror("Socket listening failed.");
-      exit(EXIT_FAILURE);
-    }
-
+    //Gets size of the client address
     clientAddressLen = sizeof(clientAddress);
+    //Accepts connection attempts from client
     int connectFileDesc = accept(servFileDesc,
       (struct sockaddr*) &clientAddress, &clientAddressLen);
 
     connectSockFDs.push_back(connectFileDesc);
 
     cout << "Connection request received..." << endl;
+    //Sends the ID of the current client to the client
     const char* outgoingClientID = to_string(i).c_str();
     int sendResult = send(connectFileDesc, outgoingClientID,
       sizeof(outgoingClientID), 0);
+    //Sending message failed
     if (sendResult == -1)
     {
+      close(servFileDesc);
       for (int j = 0; j <= i; j++)
       {
-        close(serverSockFDs.at(j));
         close(connectSockFDs.at(j));
       }
       cout << "Issue in commmunication with client #" << i << "." << endl;
@@ -138,8 +148,13 @@ int main()
     }
   }
 
+  //TODO make sure all FDs are closed
+
+  //Number of listener threads needed
   int listenerThreadCount = connectSockFDs.size();
+  //Array of listener threads
   pthread_t threads[listenerThreadCount];
+  //Data to be passed to threads
   struct thread_data threadData[listenerThreadCount];
 
   // Create a thread that will listen for the result of each client program.
@@ -156,6 +171,7 @@ int main()
     }
   }
 
+  //Main thread waits until one of the CLIENT_COUNT child threads is done
   pthread_barrier_wait(&threadBarrier);
   pthread_barrier_destroy(&threadBarrier);
 
@@ -168,9 +184,10 @@ int main()
     int sendResult = send(connectSockFDs.at(i), endMessage, sizeof(endMessage), 0);
     if (sendResult == -1)
     {
+      //If sending failed
+      close(servFileDesc);
       for (int j = 0; j <= i; j++)
       {
-        close(serverSockFDs.at(j));
         close(connectSockFDs.at(j));
       }
       cout << "Issue telling client #" << i << " to stop executing." << endl;
@@ -179,9 +196,10 @@ int main()
     }
   }
 
-  for (unsigned int i = 0; i < serverSockFDs.size(); i++)
+  //Closes all sockets
+  close(servFileDesc);
+  for (unsigned int i = 0; i < connectSockFDs.size(); i++)
   {
-    close(serverSockFDs.at(i));
     close(connectSockFDs.at(i));
   }
   return EXIT_SUCCESS;

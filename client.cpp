@@ -213,59 +213,80 @@ string readInputAsString(string inFileName)
 
 int main()
 {
+  //File to read ciphertext from
   string cipherTextFileName = "ct.txt";
+  //File to read plaintext from
   string plainTextFileName = "pt.txt";
+  //Reads ciphertext as a vector of chars
   vector<char> cipherText = readInputAsVector(cipherTextFileName);
+  //Reads the plaintext as a string
   string plainText = readInputAsString(plainTextFileName);
 
+  //IP the client must connect to
   string targetIP;
   /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
-  BOTTOM ONE IS FOR LOCALHOST TESTING*/
+  "127.0.0.1" IS FOR LOCALHOST TESTING*/
+
   //targetIP = "150.243.146.141";
   targetIP = "127.0.0.1";
+
+  //File descriptor for this client's socket
   int cliSockFileDesc;
 
+  //Address struct for this client
   struct sockaddr_in clientAddress;
   memset(&clientAddress, 0, sizeof(clientAddress));
   clientAddress.sin_family = AF_INET;
   clientAddress.sin_addr.s_addr = inet_addr(targetIP.c_str());
   clientAddress.sin_port =  htons(PORT_NO);
+  //C-style string to recieve messages from server in
   char recMsg[MAX_LINE];
+  //ID for this client (0 through CLIENT_COUNT - 1)
   int clientId;
 
+  //Establishes the file descriptor for the socket
   // AF_INET = Use IPv4,  SOCK_STREAM = Use TCP
   cliSockFileDesc = socket(AF_INET, SOCK_STREAM, 0);
   if (cliSockFileDesc == -1)
   {
+    //Socket initialization failed
     perror("Socket descriptor creation failed.");
     exit(EXIT_FAILURE);
   }
 
-  //Connection of the client to the socket
+  //Connection of the client to the server
   if (connect(cliSockFileDesc, (struct sockaddr *) &clientAddress,
     sizeof(clientAddress)) == -1)
   {
+    //Connection failed
     close(cliSockFileDesc);
     perror("Problem in connecting to the server");
     exit(EXIT_FAILURE);
   }
 
+  //Receives message from server containing the clientId
   int receiveResult = recv(cliSockFileDesc, recMsg, MAX_LINE, 0);
   if (receiveResult == 0)
   {
+    //No messages available
     cout << "No available messages, or connection gracefully closed. " << endl;
   }
   else if (receiveResult == -1)
   {
+    //Receiving message failed
     perror("Receiving message failed.");
     exit(EXIT_FAILURE);
   }
   else
   {
+    //Receiving successful, gets clientId
     clientId = atoi(recMsg);
+
+    //Begins the method for the parent thread to create the child threads
     parentMethod(clientId, cliSockFileDesc, cipherText, plainText);
   }
 
+  //Closes the clients socket
   close(cliSockFileDesc);
   return EXIT_SUCCESS;
 }
