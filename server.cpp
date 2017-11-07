@@ -85,7 +85,8 @@ int getServSocket()
   }
 
   //Binds the socket file descriptor to an address and a port
-  if (::bind(servFileDesc, (struct sockaddr *) &servAddress, sizeof(servAddress)) == -1)
+  if (::bind(servFileDesc, (struct sockaddr *) &servAddress,
+             sizeof(servAddress)) == -1)
   {
     close(servFileDesc);
     perror("Socket binding failed.");
@@ -166,7 +167,8 @@ int main()
     threadData[i].threadId = i;
     threadData[i].clientFileDesc = connectionFDs.at(i);
 
-    int resultCode = pthread_create(&threads[i], NULL, listenForClient, (void *)&threadData[i]);
+    int resultCode = pthread_create(&threads[i], NULL, listenForClient,
+                                    (void *)&threadData[i]);
     if (resultCode)
     {
        cout << "Error: unable to create thread, " << resultCode << endl;
@@ -184,7 +186,8 @@ int main()
   for (unsigned short i = 0; i < connectionFDs.size(); i++)
   {
     // Stop all Client programs by sending them a message.
-    int sendResult = send(connectionFDs.at(i), endMessage, sizeof(endMessage), 0);
+    int sendResult = send(connectionFDs.at(i), endMessage,
+                          sizeof(endMessage), 0);
     if (sendResult == -1)
     {
       //If sending failed
