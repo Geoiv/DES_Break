@@ -116,7 +116,7 @@ int main()
   int servFileDesc = getServSocket();
 
   //Vector to contain the file descriptors for the connected sockets
-  vector<int> connectSockFDs;
+  vector<int> connectionFDs;
 
   //For each client
   for (int i = 0; i < CLIENT_COUNT; i++)
@@ -127,7 +127,7 @@ int main()
     int connectFileDesc = accept(servFileDesc,
       (struct sockaddr*) &clientAddress, &clientAddressLen);
 
-    connectSockFDs.push_back(connectFileDesc);
+    connectionFDs.push_back(connectFileDesc);
 
     cout << "Connection request received..." << endl;
     //Sends the ID of the current client to the client
@@ -140,7 +140,7 @@ int main()
       close(servFileDesc);
       for (int j = 0; j <= i; j++)
       {
-        close(connectSockFDs.at(j));
+        close(connectionFDs.at(j));
       }
       cout << "Issue in commmunication with client #" << i << "." << endl;
       perror("Sending Client ID failed.");
@@ -151,7 +151,7 @@ int main()
   //TODO make sure all FDs are closed
 
   //Number of listener threads needed
-  int listenerThreadCount = connectSockFDs.size();
+  int listenerThreadCount = connectionFDs.size();
   //Array of listener threads
   pthread_t threads[listenerThreadCount];
   //Data to be passed to threads
@@ -161,7 +161,7 @@ int main()
   for (int i = 0; i < CLIENT_COUNT; i++)
   {
     threadData[i].threadId = i;
-    threadData[i].clientFileDesc = connectSockFDs.at(i);
+    threadData[i].clientFileDesc = connectionFDs.at(i);
 
     int resultCode = pthread_create(&threads[i], NULL, listenForClient, (void *)&threadData[i]);
     if (resultCode)
@@ -178,17 +178,17 @@ int main()
   // If something is recieved, the client found the right key.
   // Now tell all other clients to stop running.
   const char* endMessage = "STOP";
-  for (unsigned short i = 0; i < connectSockFDs.size(); i++)
+  for (unsigned short i = 0; i < connectionFDs.size(); i++)
   {
     // Stop all Client programs by sending them a message.
-    int sendResult = send(connectSockFDs.at(i), endMessage, sizeof(endMessage), 0);
+    int sendResult = send(connectionFDs.at(i), endMessage, sizeof(endMessage), 0);
     if (sendResult == -1)
     {
       //If sending failed
       close(servFileDesc);
       for (int j = 0; j <= i; j++)
       {
-        close(connectSockFDs.at(j));
+        close(connectionFDs.at(j));
       }
       cout << "Issue telling client #" << i << " to stop executing." << endl;
       perror("Stopping client failed.");
@@ -198,9 +198,9 @@ int main()
 
   //Closes all sockets
   close(servFileDesc);
-  for (unsigned int i = 0; i < connectSockFDs.size(); i++)
+  for (unsigned int i = 0; i < connectionFDs.size(); i++)
   {
-    close(connectSockFDs.at(i));
+    close(connectionFDs.at(i));
   }
   return EXIT_SUCCESS;
 }
