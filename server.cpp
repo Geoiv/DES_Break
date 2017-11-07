@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
+#include <errno.h>
 #include "DESBreakConsts.h"
 #include "pthread_barrier.h"
 using namespace std;
@@ -74,7 +75,9 @@ int getServSocket()
     exit(EXIT_FAILURE);
   }
   //Sets address reuse options
-  if(setsockopt(servFileDesc, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1);
+  int setOptResults = setsockopt(servFileDesc, SOL_SOCKET,
+                                 SO_REUSEADDR, &reuse, sizeof(reuse));
+  if(setOptResults == -1)
   {
     close(servFileDesc);
     perror("Socket option setting failed.");
