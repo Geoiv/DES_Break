@@ -215,6 +215,7 @@ string readInputAsString(string inFileName)
 
 int main()
 {
+  clock_t startClock = clock();
   //File to read ciphertext from
   string cipherTextFileName = "ct.txt";
   //File to read plaintext from
@@ -290,5 +291,11 @@ int main()
 
   //Closes the clients socket
   close(cliSockFileDesc);
+
+
+  clock_t timeElapsed = clock() - (float)startClock;
+  cout << "Time elapsed for finding the DES key was " <<
+    (float)((timeElapsed / (float)CLOCKS_PER_SEC) * 1000) <<
+    " milliseconds." << endl;
   return EXIT_SUCCESS;
 }

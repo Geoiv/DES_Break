@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <errno.h>
+#include <vector>
+#include <time.h>
+
 #include "DESBreakConsts.h"
 #include "pthread_barrier.h"
 using namespace std;
