@@ -53,12 +53,12 @@ void *ThreadDecrypt(void *threadArg)
    {
       threadKeyRange = THREAD_KEY_OFFSET;
    }
-   unsigned long endingKeyNum = threadData->startingKeyNum + threadKeyRange;
-   cout << "Client: " << threadData->clientId << endl;
-   cout << "Thread: " << threadData->threadId << endl;
-   cout << "  Key range: " << threadKeyRange << endl;
-   cout << "  Space Min: " << threadData->startingKeyNum << endl;
-   cout << "  Space Max: " << endingKeyNum << endl;
+   //unsigned long endingKeyNum = threadData->startingKeyNum + threadKeyRange;
+   // cout << "Client: " << threadData->clientId << endl;
+   // cout << "Thread: " << threadData->threadId << endl;
+   // cout << "  Key range: " << threadKeyRange << endl;
+   // cout << "  Space Min: " << threadData->startingKeyNum << endl;
+   // cout << "  Space Max: " << endingKeyNum << endl;
 
    unsigned long currentKey;
    for (unsigned long i = 0; i < threadKeyRange; i++)
@@ -67,7 +67,7 @@ void *ThreadDecrypt(void *threadArg)
       currentKey = threadData->startingKeyNum + i;
       //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
       //" Starting Key Number : " << startingKeyNum << "    " <<
-      //" Current Key Number : " << startingKeyNum + i << "    " << endl;
+      cout << " Current Key Number : " << threadData->startingKeyNum + i << "    " << endl;
       bitset<BITS_IN_KEY> keyBitset (currentKey);
       //cout << "keyBits: " << keyBitset << endl;
       unsigned short parityBitScale = parityBits.size();
