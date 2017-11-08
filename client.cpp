@@ -15,7 +15,7 @@ using namespace std;
 
 const int BITS_IN_KEY = 56;
 const unsigned long TOTAL_KEYS = pow(2, BITS_IN_KEY);
-const short NUM_THREADS = 5;
+const short NUM_THREADS = 2;
 const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
@@ -38,36 +38,33 @@ void *ThreadDecrypt(void *threadArg)
 
    DESCipher cipher;
    string decryptResults;
-   vector<char> cipherText = threadData->cipherText;
    vector<bool> keyBits;
    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
-   unsigned int startingKeyNum = threadData->startingKeyNum;
-
    //Number of character groups that will need to be decrypted
-   short charGroupCount = cipherText.size()/CHARS_IN_BLOCK;
+   short charGroupCount = threadData->cipherText.size()/CHARS_IN_BLOCK;
    unsigned long threadKeyRange;
 
    if (threadData->clientId == (CLIENT_COUNT - 1) &&
        threadData->threadId == (NUM_THREADS - 1))
    {
-      threadKeyRange = TOTAL_KEYS - startingKeyNum;
+      threadKeyRange = TOTAL_KEYS - threadData->startingKeyNum;
    }
    else
    {
       threadKeyRange = THREAD_KEY_OFFSET;
    }
-   unsigned long endingKeyNum = startingKeyNum + threadKeyRange;
+   unsigned long endingKeyNum = threadData->startingKeyNum + threadKeyRange;
    cout << "Client: " << threadData->clientId << endl;
    cout << "Thread: " << threadData->threadId << endl;
    cout << "  Key range: " << threadKeyRange << endl;
-   cout << "  Space Min: " << startingKeyNum << endl;
+   cout << "  Space Min: " << threadData->startingKeyNum << endl;
    cout << "  Space Max: " << endingKeyNum << endl;
 
    unsigned long currentKey;
    for (unsigned long i = 0; i < threadKeyRange; i++)
    {
       decryptResults = "";
-      currentKey = startingKeyNum + i;
+      currentKey = threadData->startingKeyNum + i;
       //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
       //" Starting Key Number : " << startingKeyNum << "    " <<
       //" Current Key Number : " << startingKeyNum + i << "    " << endl;
@@ -92,7 +89,7 @@ void *ThreadDecrypt(void *threadArg)
         //Loads 8 characters into curGroupChars
         for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
-          curGroupChars.push_back(cipherText.at((j*CHARS_IN_BLOCK)+k));
+          curGroupChars.push_back(threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
         //Converts current group to bit representation
         curCharGroup = DESCipher::charsToBits(curGroupChars);
@@ -118,7 +115,6 @@ void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
    // Client gives the ID - the order in which client connected to server
    // The ID acts as a multiplier(0-11)
    unsigned long parentKeySpaceStart = (TOTAL_KEYS / CLIENT_COUNT) * clientId;
-   cout << endl << "parentKeySpaceStart:  " << parentKeySpaceStart << endl;
 
    for( int i = 0; i < NUM_THREADS; i++ )
    {
