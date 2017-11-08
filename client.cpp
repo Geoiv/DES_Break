@@ -8,19 +8,18 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
-#include <limits.h>
 
 #include "DESCipher.h"
 #include "DESBreakConsts.h"
 using namespace std;
 
-const unsigned long TOTAL_KEYS = ULONG_MAX;
-const short NUM_THREADS = 12;
+const int BITS_IN_KEY = 56;
+const unsigned long TOTAL_KEYS = pow(2, BITS_IN_KEY);
+const short NUM_THREADS = 5;
 const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
 // mathematical errors.
-const int BITS_IN_KEY = 64;
 
 struct thread_data
 {
@@ -41,6 +40,7 @@ void *ThreadDecrypt(void *threadArg)
    string decryptResults;
    vector<char> cipherText = threadData->cipherText;
    vector<bool> keyBits;
+   vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
    unsigned int startingKeyNum = threadData->startingKeyNum;
 
    //Number of character groups that will need to be decrypted
@@ -50,7 +50,7 @@ void *ThreadDecrypt(void *threadArg)
    if (threadData->clientId == (CLIENT_COUNT - 1) &&
        threadData->threadId == (NUM_THREADS - 1))
    {
-      threadKeyRange = ULONG_MAX - startingKeyNum;
+      threadKeyRange = TOTAL_KEYS - startingKeyNum;
    }
    else
    {
@@ -73,9 +73,14 @@ void *ThreadDecrypt(void *threadArg)
       //" Current Key Number : " << startingKeyNum + i << "    " << endl;
       bitset<BITS_IN_KEY> keyBitset (currentKey);
       //cout << "keyBits: " << keyBitset << endl;
-      for(short j = BITS_IN_KEY - 1; j >= 0; j--)
+      unsigned short parityBitScale = parityBits.size();
+      for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        keyBits.push_back(keyBitset[j]);
+        if ((i + 1) % (parityBitScale - 1) == 0)
+        {
+          keyBits.push_back(parityBits.at(i / parityBitScale));
+        }
+        keyBits.push_back(keyBitset[i]);
       }
 
       for (int j = 0; j < charGroupCount; j++)
@@ -117,17 +122,18 @@ void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
 
    for( int i = 0; i < NUM_THREADS; i++ )
    {
-      cout <<"main() : creating thread, " << i << endl;
+      // cout <<"main() : creating thread, " << i << endl;
       threadData[i].threadId = i;
       threadData[i].clientId = clientId;
-      threadData[i].startingKeyNum = parentKeySpaceStart + (i * THREAD_KEY_OFFSET);
+      threadData[i].startingKeyNum = parentKeySpaceStart +
+         (i * THREAD_KEY_OFFSET);
       threadData[i].cliSockFileDesc = cliSockFileDesc;
       threadData[i].cipherText = cipherText;
       threadData[i].plainText = plainText;
 
-      cout << "i: " << i << "  |  parentKeySpaceStart + " <<
-         "(i * THREAD_KEY_OFFSET): " << parentKeySpaceStart +
-         (i * THREAD_KEY_OFFSET) << endl;
+      // cout << "i: " << i << "  |  parentKeySpaceStart + " <<
+      //    "(i * THREAD_KEY_OFFSET): " << parentKeySpaceStart +
+      //    (i * THREAD_KEY_OFFSET) << endl;
 
       int resultCode = pthread_create(&threads[i], NULL, ThreadDecrypt, (
          void *)&threadData[i]);
