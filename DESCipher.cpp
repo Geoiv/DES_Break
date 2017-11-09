@@ -16,6 +16,7 @@ DESCipher::DESCipher()
 
 }
 
+//TODO will the fact that these are being indexed in reverse affect the found key?
 //IP Table, takes in vector of size 64, permutes it, and modifies
 //left and right vectors passed by reference to give plaintext halves
 void DESCipher::initPerm(vector<bool> inputVector, vector<bool>& leftText,
@@ -354,7 +355,7 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
     bitset<BITS_IN_CHAR> temp(inputVector.at(i));
-    for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
+    for(short j = 0; j < BITS_IN_CHAR; j++)
     {
       outputVector.push_back(temp[j]);
     }

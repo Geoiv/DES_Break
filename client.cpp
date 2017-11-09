@@ -71,14 +71,15 @@ void *ThreadDecrypt(void *threadArg)
       bitset<BITS_IN_KEY> keyBitset (currentKey);
       //cout << "keyBits: " << keyBitset << endl;
       unsigned short parityBitScale = parityBits.size();
-      for (int i = BITS_IN_KEY - 1; i >= 0; i--)
+      for (int i = 0; i < BITS_IN_KEY; i++)
       {
-        if ((i + 1) % (parityBitScale - 1) == 0)
+        if ((i % (parityBitScale - 1)) == 0 && (i != 0))
         {
           keyBits.push_back(parityBits.at(i / parityBitScale));
         }
         keyBits.push_back(keyBitset[i]);
       }
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       for (int j = 0; j < charGroupCount; j++)
       {
