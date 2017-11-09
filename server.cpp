@@ -215,7 +215,7 @@ int main()
   }
   //Gets total execution time for program
   clock_t timeElapsed = clock() - (float)startClock;
-  cout << "Time elapsed for decryption was " <<
+  cout << "Time elapsed for keyspace searching was " <<
     (float)((timeElapsed / (float)CLOCKS_PER_SEC))
     << " seconds." << endl;
   return EXIT_SUCCESS;

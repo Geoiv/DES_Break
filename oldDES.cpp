@@ -17,9 +17,9 @@ const short CHARS_IN_BLOCK = 8;
 //Number of bits in a char variable
 const short BITS_IN_CHAR = 8;
 //Number of rounds the algorithm should operate for
-const short ROUND_COUNT = 8;
+const short ROUND_COUNT = 1;
 //Whether or not testing statements should be printed
-const bool VERBOSE = false;
+const bool VERBOSE = true;
 
 //IP Table, takes in vector of size 64, permutes it, and modifies
 //left and right vectors passed by reference to give plaintext halves
@@ -376,7 +376,7 @@ vector<bool> charsToBits(vector<char> inputVector)
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
     bitset<BITS_IN_CHAR> temp(inputVector.at(i));
-    for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
+    for(short j = 0; j < BITS_IN_CHAR; j++)
     {
       outputVector.push_back(temp[j]);
     }
@@ -754,7 +754,7 @@ int main()
 
       int keyInt = 65;
       bitset<64> keyIntBits(keyInt);
-      for (int i = 63; i >= 0; i--)
+      for (int i = 0; i < 64; i++)
       {
         keyBits.push_back(keyIntBits[i]);
       }
@@ -812,7 +812,7 @@ int main()
 
       int keyInt = 65;
       bitset<64> keyIntBits(keyInt);
-      for (int i = 63; i >= 0; i--)
+      for (int i = 0; i < 64; i++)
       {
         keyBits.push_back(keyIntBits[i]);
       }
