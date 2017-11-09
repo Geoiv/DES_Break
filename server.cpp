@@ -111,6 +111,8 @@ int getServSocket()
 //attempt a brute-force attack to break DES
 int main()
 {
+  //Starts program execution timing
+  clock_t startClock = clock();
   //Initializes the pthread barrier
   pthread_barrier_init(&threadBarrier, NULL, 2);
 
@@ -211,5 +213,10 @@ int main()
   {
     close(connectionFDs.at(i));
   }
+  //Gets total execution time for program
+  clock_t timeElapsed = clock() - (float)startClock;
+  cout << "Time elapsed for decryption was " <<
+    (float)((timeElapsed / (float)CLOCKS_PER_SEC))
+    << " seconds." << endl;
   return EXIT_SUCCESS;
 }
