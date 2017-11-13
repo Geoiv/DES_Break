@@ -5,11 +5,15 @@ Brandon Crane, Monica Singh, & George Wood
 */
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <bitset>
 #include <time.h>
 #include "DESCipher.h"
 using namespace std;
+
+const bool VERBOSE0 = true;
+const bool VERBOSE1 = false;
 
 DESCipher::DESCipher()
 {
@@ -32,22 +36,16 @@ void DESCipher::initPerm(vector<bool> inputVector, vector<bool>& leftText,
                       59,51,43,35,27,19,11,3,
                       61,53,45,37,29,21,13,5,
                       63,55,47,39,31,23,15,7};
-  //Vector to store permuted values
-  vector<bool> permVec;
-  //Pushes permuted values into permVec
-  for(short i=0; i < outputVectorSize; i++)
-  {
-    permVec.push_back(inputVector.at(initPerm[i]-1));
-  }
+
   //First half of permuted values pushed to the leftText vector
-  for (unsigned short i = 0; i < permVec.size() / 2; i++)
+  for (unsigned short i = 0; i < outputVectorSize / 2; i++)
   {
-    leftText.push_back(permVec.at(i));
+    leftText.push_back(inputVector.at(initPerm[i]-1));
   }
   //Second half of permuted values pushed to the rightText vector
-  for (unsigned short i = permVec.size() / 2; i < permVec.size(); i++)
+  for (unsigned short i = outputVectorSize / 2; i < outputVectorSize; i++)
   {
-    rightText.push_back(permVec.at(i));
+    rightText.push_back(inputVector.at(initPerm[i]-1));
   }
 }
 
@@ -307,16 +305,28 @@ vector<bool> DESCipher::sBoxSub(vector<bool> rightTextI)
     string colString;
 
     //Gets row value in binary
+
     rowString.append(bitGroups.at(j).at(0) ? "1" : "0");
     rowString.append(bitGroups.at(j).at(bitsInGroup - 1) ? "1" : "0");
     //Gets column value in binary
-    for(short i = 1; i <5; i++)
+    for(short i = 1; i < bitsInGroup - 1; i++)
     {
       colString.append(bitGroups.at(j).at(i) ? "1" : "0");
     }
+
     //Bitsets to convert the row and column values to decimal
     bitset<2> row (rowString);
     bitset<4> col (colString);
+
+    if (VERBOSE1)
+    {
+      cout << " J: " << j << " RowBinary: " << rowString << " ColBinary: " <<
+        colString << endl;
+      cout << "    Row: " << row.to_ulong() << " Col: " << col.to_ulong() <<
+        " Val: " << sBoxes.at(j).at(row.to_ulong()).at(col.to_ulong()) << endl;
+    }
+
+
     //Gets the value that each bit group will be replaced with
     bitset<4> newBinary(sBoxes.at(j).at(row.to_ulong()).at(col.to_ulong()));
     //Pushes the new binary value of the current group to outputVector
@@ -352,14 +362,24 @@ vector<bool> DESCipher::pTablePerm(vector<bool> inputVector)
 vector<bool> DESCipher::charsToBits(vector<char> inputVector)
 {
   vector<bool> outputVector;
+  //int hexValsInChar = 2;
+  //cout << "hi" << endl;
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
+    // int currentPair;
+    // stringstream converterStream;
+    // converterStream << hex << inputVector.at(i);
+    // converterStream << hex << inputVector.at(i + 1);
+    // cout << converterStream.str() << endl;
+    // converterStream >> hex >> currentPair;
     bitset<BITS_IN_CHAR> temp(inputVector.at(i));
-    for(short j = 0; j < BITS_IN_CHAR; j++)
+    // cout << temp << endl;
+    for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
     {
       outputVector.push_back(temp[j]);
     }
   }
+  //cout << "hello" << endl;
   return outputVector;
 }
 
@@ -368,6 +388,7 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
 {
   //Output string of converted binary values to be returned
   string outputText = "";
+  //stringstream hexStream;
   //Loops for each character in the block
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
@@ -382,8 +403,26 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
     bitset<BITS_IN_CHAR> temp(tempString);
     //Adds converted character to the output text
     outputText += (char)temp.to_ulong();
+    //hexStream << hex << temp.to_ulong();
   }
   return outputText;
+}
+
+//Prints out binary values in a vector in separated groups of 8
+//(For testing purposes)
+void DESCipher::printVector(vector<bool> inputVec)
+{
+  //Prints each character
+  for (unsigned int i = 0; i < inputVec.size(); i++)
+  {
+    cout << inputVec.at(i);
+    //Inserts a space between each group of 8
+    if (((i + 1) % BITS_IN_CHAR == 0) && (i != 0))
+    {
+      cout << " ";
+    }
+  }
+  cout << endl;
 }
 
 //Takes in a size 64 vector of booleans for both plaintext and the key
@@ -411,21 +450,65 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
 
+  if (VERBOSE0)
+  {
+    cout << "Original plaintext: \n";
+    printVector(plainTextBits);
+    cout << "Original key: \n";
+    printVector(keyBits);
+
+    cout << "Left half plaintext after init perm\n";
+    printVector(leftTextI);
+    cout << "Right half plaintext after init perm\n";
+    printVector(rightTextI);
+    cout <<"left half key after pc1Perm: \n";
+    printVector(leftKey);
+    cout << "right half key after pc1Perm: \n";
+    printVector(rightKey);
+  }
+
+
   //Loops for the specified number of rounds
   for (short i = 0; i < ROUND_COUNT; i++)
   {
+    if (VERBOSE0)
+    {
+      cout << endl;
+      cout << "Current round: " << i << endl;
+      cout << endl;
+    }
 
     //Sets the left text half for the next round to current right half
     leftTextIPlus1 = rightTextI;
     //Right text is permuted and expanded to 48 bits
     rightTextI = eTablePerm(rightTextI);
 
+    if (VERBOSE0)
+    {
+      cout  << "right half after etable:\n";
+      printVector(rightTextI);
+    }
+
     //Applies left shifts to key halves
     leftKey = leftShiftSched(leftKey, i);
     rightKey = leftShiftSched(rightKey, i);
 
+    if (VERBOSE0)
+    {
+      cout << "left key after shift:\n";
+      printVector(leftKey);
+      cout << "right key after shift:\n";
+      printVector(rightKey);
+    }
+
     //Applies PC-2 table to the key halves and combines them
     permKey = pc2Perm(leftKey, rightKey);
+
+    if (VERBOSE0)
+    {
+      cout << "key after pc2perm:\n";
+      printVector(permKey);
+    }
 
     //Applies XOR on each bit of the right text half and the permuted key
     for (unsigned short j = 0; j < rightTextI.size(); j++)
@@ -433,12 +516,31 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
       rightTextI.at(j) = rightTextI.at(j)^permKey.at(j);
     }
 
+    if (VERBOSE0)
+    {
+      cout << "Right text after first xor:\n";
+      printVector(rightTextI);
+    }
 
     //Applies S boxes to text half
     rightTextI = sBoxSub(rightTextI);
 
+    if (VERBOSE0)
+    {
+      cout << "Right text after sboxes:\n";
+      printVector(rightTextI);
+    }
+
     //Applies P table to text half
     rightTextI = pTablePerm(rightTextI);
+
+    if (VERBOSE0)
+    {
+      cout << "Right text after ptable:\n";
+      printVector(rightTextI);
+      cout << "left text:\n";
+      printVector(leftTextI);
+    }
 
     //Applies XOR on each bit of the mutated right text half and the left half
     for (unsigned short j = 0; j < rightTextI.size(); j++)
@@ -446,19 +548,46 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
       rightTextI.at(j) = rightTextI.at(j)^leftTextI.at(j);
     }
 
+    if (VERBOSE0)
+    {
+      cout << "text after second xor:\n";
+      printVector(rightTextI);
+    }
+
     //Sets the left text half for current round to the left half for next round
     leftTextI = leftTextIPlus1;
 
+    if (VERBOSE0)
+    {
+      cout << "left text i plus 1:\n";
+      printVector(leftTextI);
+    }
   }
 
   //Applies 32-bit swap to the left and right halves after all rounds
   rightTextI.insert(rightTextI.end(), leftTextI.begin(), leftTextI.end());
 
+  if (VERBOSE0)
+  {
+    cout << "text after 32 bit swap:\n";
+    printVector(rightTextI);
+  }
+
   //Applies inverse IP table to final output ciphertext
   rightTextI = invInitPerm(rightTextI);
+  if (VERBOSE0)
+  {
+    cout << "text after inverse ip table:\n";
+    printVector(rightTextI);
+  }
 
   //Converts binary values back to characters
   cipherText = bitsToChars(rightTextI);
+
+  if (VERBOSE0)
+  {
+    cout << cipherText << endl;
+  }
 
   return cipherText;
 }

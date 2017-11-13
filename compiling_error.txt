@@ -1,0 +1,7 @@
+/tmp/ccSX8NLl.o: In function `main':
+oldDESTest.cpp:(.text+0x49b): undefined reference to `DESCipher::DESCipher()'
+oldDESTest.cpp:(.text+0x748): undefined reference to `DESCipher::charsToBits(std::vector<char, std::allocator<char> >)'
+oldDESTest.cpp:(.text+0x7d5): undefined reference to `DESCipher::encrypt[abi:cxx11](std::vector<bool, std::allocator<bool> >, std::vector<bool, std::allocator<bool> >)'
+oldDESTest.cpp:(.text+0xc10): undefined reference to `DESCipher::charsToBits(std::vector<char, std::allocator<char> >)'
+oldDESTest.cpp:(.text+0xc9a): undefined reference to `DESCipher::decrypt[abi:cxx11](std::vector<bool, std::allocator<bool> >, std::vector<bool, std::allocator<bool> >)'
+collect2: error: ld returned 1 exit status

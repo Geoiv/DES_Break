@@ -169,7 +169,7 @@ vector<char> readInputAsVector(string inFileName)
     {
       for(short i = 0; i < charsToPad; i++)
       {
-        readText.push_back('x');
+        readText.push_back('0');
       }
     }
   }

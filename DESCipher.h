@@ -12,7 +12,7 @@ const short CHARS_IN_BLOCK = 8;
 //Number of bits in a char variable
 const short BITS_IN_CHAR = 8;
 //Number of rounds the algorithm should operate for
-const short ROUND_COUNT = 16;
+const short ROUND_COUNT = 1;
 
 class DESCipher
 {
@@ -59,6 +59,8 @@ class DESCipher
 
     //Converts bits to chars and appends them to a string
     static std::string bitsToChars(std::vector<bool> inputVector);
+
+    void printVector(std::vector<bool> inputVec);
 
     //Takes in a size 64 vector of booleans for both plaintext and the key
     //and performs DES encryption on them. Returns string of ciphertext for the
