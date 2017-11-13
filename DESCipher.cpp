@@ -361,11 +361,9 @@ vector<bool> DESCipher::pTablePerm(vector<bool> inputVector)
 //Converts characters to bits and places them in a vector of bools
 vector<bool> DESCipher::charsToBits(vector<char> inputVector)
 {
-  cout << "2" << endl;
   vector<bool> outputVector;
   int hexValsInChar = 2;
-  //cout << "hi" << endl;
-  for (short i = 0; i < CHARS_IN_BLOCK * 2; i+= hexValsInChar)
+  for (short i = 0; i < HEX_CHARS_IN_BLOCK; i+= hexValsInChar)
   {
     string currentPair;
     int pairVal;
@@ -374,21 +372,17 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
     stringstream converterStream(currentPair);
     converterStream >> hex >> pairVal;
     bitset<BITS_IN_CHAR> temp(pairVal);
-    cout << temp << endl;
-    // cout << temp << endl;
     for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
     {
       outputVector.push_back(temp[j]);
     }
   }
-  //cout << "hello" << endl;
   return outputVector;
 }
 
 //Converts bits to chars and appends them to a string
 string DESCipher::bitsToChars(vector<bool> inputVector)
 {
-  cout << "1" << endl;
   //Output string of converted binary values to be returned
   //string outputText = "";
   stringstream hexStream;
@@ -587,7 +581,7 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
   //Converts binary values back to characters
   cipherText = bitsToChars(rightTextI);
 
-  if (true)
+  if (VERBOSE0)
   {
     cout << cipherText << endl;
   }

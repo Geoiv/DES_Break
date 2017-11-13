@@ -1,7 +1,7 @@
 /*
-CS 455 - Project Part 1 - DES Implementation
+CS 455 - Project Part 2 - DES Implementation
 Brandon Crane, Matt Frederick, Monica Singh, & George Wood
-9/30/17
+11/13/17
 */
 
 #include <iostream>
@@ -34,12 +34,12 @@ vector<char> readInput(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
-    if (charsToPad != CHARS_IN_BLOCK)
+    short charsToPad = HEX_CHARS_IN_BLOCK - (readText.size() % HEX_CHARS_IN_BLOCK);
+    if (charsToPad != HEX_CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
-        readText.push_back('x');
+        readText.push_back('0');
       }
     }
   }
@@ -55,7 +55,6 @@ vector<char> readInput(string inFileName)
 //Writes output to a text file with a specified name
 void writeOutput(string inputString, string fileName)
 {
-  cout << "writing" << endl;
   ofstream outTextFileStream;
   outTextFileStream.open(fileName, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   //If file was successfully opened
@@ -79,13 +78,11 @@ void writeOutput(string inputString, string fileName)
 int main()
 {
   //Filenames for input/output text files
-  //Available ptFileNames are '8Char.txt', '8000Char.txt', and '80000Char.txt'.
   string ptFileName = "pt.txt";
-  //string keyFileName = "key.txt";
   string encryptOutFileName = "encryptResults.txt";
   string decryptOutFileName = "decryptResults.txt";
 
-  cout << "DES Cryptography Algoritm - CS 455 Project Part 1" << endl;
+  cout << "DES Cryptography Algoritm - CS 455 Project Part 2" << endl;
 
   DESCipher cipher;
 
@@ -122,13 +119,12 @@ int main()
         keyBits.push_back(keyIntBits[i]);
       }
       //Number of character groups that will need to be encrypted
-      short charGroupCount = plainText.size() / (CHARS_IN_BLOCK * 2);
+      short charGroupCount = plainText.size() / HEX_CHARS_IN_BLOCK;
       //Collects output ciphertext
       string cipherText = "";
       //Loops for each character group
       for (short i = 0; i < charGroupCount; i++)
       {
-        cout << "I:" << i << endl;
         //Holds characters of the current group
         vector<char> curGroupChars;
         //Current character group represented as bits
@@ -163,13 +159,11 @@ int main()
       clock_t startClock = clock();
       //Reads ciphertext and key text
       vector<char> cipherText = readInput(encryptOutFileName);
-      //vector<char> keyText = readInput(keyFileName);
       //If input text was of length 0 (such as when input fails)
       if ((cipherText.size() == 0))
       {
         return 0;
       }
-      //Key represented as bits
       //Key represented as bits
       vector<bool> keyBits;
 
@@ -181,7 +175,7 @@ int main()
       }
 
       //Number of character groups that will need to be decrypted
-      short charGroupCount = cipherText.size()/CHARS_IN_BLOCK * 2;
+      short charGroupCount = cipherText.size() / HEX_CHARS_IN_BLOCK;
       //Collects output plaintext
       string plainText = "";
       //Loops for each character group
@@ -192,7 +186,7 @@ int main()
         //Current character group represented as bits
         vector<bool> curCharGroup;
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK * 2; j++)
+        for (short j = 0; j < HEX_CHARS_IN_BLOCK; j++)
         {
           curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
         }

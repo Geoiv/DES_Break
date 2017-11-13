@@ -9,6 +9,7 @@ Brandon Crane, Monica Singh, & George Wood
 
 //Number of characters in each block of input text being processed
 const short CHARS_IN_BLOCK = 8;
+const short HEX_CHARS_IN_BLOCK = 2 * CHARS_IN_BLOCK;
 //Number of bits in a char variable
 const short BITS_IN_CHAR = 8;
 //Number of rounds the algorithm should operate for
