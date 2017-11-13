@@ -39,7 +39,7 @@ vector<char> readInput(string inFileName)
     {
       for(short i = 0; i < charsToPad; i++)
       {
-        readText.push_back('0');
+        readText.push_back('x');
       }
     }
   }
@@ -55,6 +55,7 @@ vector<char> readInput(string inFileName)
 //Writes output to a text file with a specified name
 void writeOutput(string inputString, string fileName)
 {
+  cout << "writing" << endl;
   ofstream outTextFileStream;
   outTextFileStream.open(fileName, std::ofstream::out | std::ofstream::trunc | std::ios::binary);
   //If file was successfully opened
@@ -121,19 +122,20 @@ int main()
         keyBits.push_back(keyIntBits[i]);
       }
       //Number of character groups that will need to be encrypted
-      short charGroupCount = plainText.size() / CHARS_IN_BLOCK;
+      short charGroupCount = plainText.size() / (CHARS_IN_BLOCK * 2);
       //Collects output ciphertext
       string cipherText = "";
       //Loops for each character group
       for (short i = 0; i < charGroupCount; i++)
       {
+        cout << "I:" << i << endl;
         //Holds characters of the current group
         vector<char> curGroupChars;
         //Current character group represented as bits
         vector<bool> curCharGroup;
 
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < CHARS_IN_BLOCK * 2; j++)
         {
           curGroupChars.push_back(plainText.at((i*CHARS_IN_BLOCK)+j));
         }
@@ -173,13 +175,13 @@ int main()
 
       int keyInt = 65;
       bitset<64> keyIntBits(keyInt);
-      for (int i = 0; i < 64; i++)
+      for (int i = 63; i >= 0; i--)
       {
         keyBits.push_back(keyIntBits[i]);
       }
 
       //Number of character groups that will need to be decrypted
-      short charGroupCount = cipherText.size()/CHARS_IN_BLOCK;
+      short charGroupCount = cipherText.size()/CHARS_IN_BLOCK * 2;
       //Collects output plaintext
       string plainText = "";
       //Loops for each character group
@@ -190,7 +192,7 @@ int main()
         //Current character group represented as bits
         vector<bool> curCharGroup;
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < CHARS_IN_BLOCK * 2; j++)
         {
           curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
         }
