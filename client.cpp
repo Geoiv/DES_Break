@@ -71,9 +71,9 @@ void *ThreadDecrypt(void *threadArg)
       bitset<BITS_IN_KEY> keyBitset (currentKey);
       //cout << "keyBits: " << keyBitset << endl;
       unsigned short parityBitScale = parityBits.size();
-      for (int i = 0; i < BITS_IN_KEY; i++)
+      for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        if ((i % (parityBitScale - 1)) == 0 && (i != 0))
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
         {
           keyBits.push_back(parityBits.at(i / parityBitScale));
         }
@@ -98,6 +98,7 @@ void *ThreadDecrypt(void *threadArg)
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
       }
+      //TODO make sure that everything is either all uppercase or all lowercase
       if (decryptResults.compare(threadData->plainText) == 0)
       {
         const char* foundKey = to_string(currentKey).c_str();
@@ -149,6 +150,7 @@ void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
 
 vector<char> readInputAsVector(string inFileName)
 {
+  int charsRead = 0;
   ifstream inTextFileStream;
   inTextFileStream.open(inFileName, std::ios::binary);
   //Vector to hold read characters
@@ -160,12 +162,13 @@ vector<char> readInputAsVector(string inFileName)
     //Pushes current char to readText
     while (inTextFileStream.get(c))
     {
+      charsRead++;
       readText.push_back(c);
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
-    if (charsToPad != CHARS_IN_BLOCK)
+    short charsToPad = HEX_CHARS_IN_BLOCK - (readText.size() % HEX_CHARS_IN_BLOCK);
+    if (charsToPad != HEX_CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {

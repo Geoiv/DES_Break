@@ -112,7 +112,7 @@ int main()
       //Key represented as bits
       vector<bool> keyBits;
 
-      int keyInt = 65;
+      unsigned int keyInt = 65;
       bitset<64> keyIntBits(keyInt);
       for (int i = 63; i >= 0; i--)
       {

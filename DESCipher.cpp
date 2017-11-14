@@ -14,6 +14,7 @@ using namespace std;
 
 const bool VERBOSE0 = false;
 const bool VERBOSE1 = false;
+const bool VERBOSEKEYS = true;
 
 DESCipher::DESCipher()
 {
@@ -384,7 +385,7 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
 string DESCipher::bitsToChars(vector<bool> inputVector)
 {
   //Output string of converted binary values to be returned
-  //string outputText = "";
+  string outputText = "";
   stringstream hexStream;
   //Loops for each character in the block
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
@@ -399,10 +400,11 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
     //Puts bits in a bitset
     bitset<BITS_IN_CHAR> temp(tempString);
     //Adds converted character to the output text
-    //outputText += (char)temp.to_ulong();
-    hexStream << hex << temp.to_ulong();
+    outputText += (char)temp.to_ulong();
+    //hexStream << hex << temp.to_ulong();
   }
-  return hexStream.str();
+  //return hexStream.str();
+  return outputText;
 }
 
 //Prints out binary values in a vector in separated groups of 8
@@ -416,7 +418,7 @@ void DESCipher::printVector(vector<bool> inputVec)
     //Inserts a space between each group of 8
     if (((i + 1) % BITS_IN_CHAR == 0) && (i != 0))
     {
-      cout << " ";
+      //cout << " ";
     }
   }
   cout << endl;
@@ -490,8 +492,9 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
     leftKey = leftShiftSched(leftKey, i);
     rightKey = leftShiftSched(rightKey, i);
 
-    if (VERBOSE0)
+    if (VERBOSEKEYS)
     {
+      cout << i << endl;
       cout << "left key after shift:\n";
       printVector(leftKey);
       cout << "right key after shift:\n";
@@ -662,8 +665,9 @@ string DESCipher::decrypt(vector<bool> cipherTextBits, vector<bool> keyBits)
       shiftedRightKey = leftShiftSched(shiftedRightKey, j);
     }
 
-    if (VERBOSE0)
+    if (VERBOSEKEYS)
     {
+      cout << i << endl;
       cout << "left key after shift:\n";
       printVector(shiftedLeftKey);
       cout << "right key after shift:\n";
