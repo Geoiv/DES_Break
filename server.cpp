@@ -74,7 +74,7 @@ void *listenForClient(void * threadArg)
     bitset<FULL_KEY_BITS> finalKeyBits(keyString);
 
     //Successful receiving
-    cout << "Key found by thread " << threadData->threadId << "!" << endl;
+    cout << "Key found by client " << threadData->threadId << "!" << endl;
     cout << "Key: " << finalKeyBits.to_ulong() << endl;
     //Wait on the pthread barrier, allowing the main thread to continue running
     pthread_barrier_wait(&threadBarrier);
