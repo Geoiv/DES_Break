@@ -427,7 +427,7 @@ void DESCipher::printVector(vector<bool> inputVec)
     //Inserts a space between each group of 8
     if (((i + 1) % BITS_IN_CHAR == 0) && (i != 0))
     {
-      //cout << " ";
+      cout << " ";
     }
   }
   cout << endl;
