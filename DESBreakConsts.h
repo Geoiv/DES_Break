@@ -1,3 +1,4 @@
+const int BITS_IN_KEY = 56;
 //Port # to connect through
 const int PORT_NO = 3000;
 //Max size of a C-style string

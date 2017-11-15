@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <vector>
 #include <time.h>
+#include <bitset>
 
 #include "DESBreakConsts.h"
 #include "pthread_barrier.h"
@@ -13,6 +14,8 @@ using namespace std;
 
 //Barrier to prevent the main thread from prematurely ending program
 pthread_barrier_t threadBarrier;
+
+const int FULL_KEY_BITS = 64;
 
 //Data passed to each child thread
 struct thread_data
@@ -47,9 +50,27 @@ void *listenForClient(void * threadArg)
   }
   else
   {
+    string initKeyString(recMsg);
+    int currentParityBit = 0;
+    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
+    int parityBitScale = parityBits.size();
+    bitset<BITS_IN_KEY> initKeyBitset(stoi(initKeyString));
+    string keyString = "";
+    for (int i = BITS_IN_KEY - 1; i >= 0; i--)
+    {
+      if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+      {
+        keyString += (parityBits.at(currentParityBit));
+        currentParityBit++;
+      }
+      keyString += initKeyBitset[i];
+    }
+    keyString += (parityBits.at(parityBits.size() - 1));
+    bitset<FULL_KEY_BITS> finalKeyBits(keyString);
+    cout << finalKeyBits << endl;
     //Successful receiving
     cout << "Key found by thread " << threadData->threadId << "!" << endl;
-    cout << "Key: " << recMsg << endl;
+    cout << "Key: " << finalKeyBits.to_ulong() << endl;
     //Wait on the pthread barrier, allowing the main thread to continue running
     pthread_barrier_wait(&threadBarrier);
   }
