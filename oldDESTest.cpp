@@ -34,8 +34,8 @@ vector<char> readInput(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = HEX_CHARS_IN_BLOCK - (readText.size() % HEX_CHARS_IN_BLOCK);
-    if (charsToPad != HEX_CHARS_IN_BLOCK)
+    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
@@ -79,7 +79,7 @@ int main()
 {
   //Filenames for input/output text files
   string ptFileName = "pt.txt";
-  string encryptOutFileName = "encryptResults.txt";
+  string encryptOutFileName = "ct.txt";
   string decryptOutFileName = "decryptResults.txt";
 
   cout << "DES Cryptography Algoritm - CS 455 Project Part 2" << endl;
@@ -118,17 +118,19 @@ int main()
       const int BITS_IN_KEY = 56;
       int keyInt = 65;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
+      int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
         if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
         {
-          keyBits.push_back(parityBits.at(i / parityBitScale));
+          keyBits.push_back(parityBits.at(currentParityBit));
+          currentParityBit++;
         }
         keyBits.push_back(keyBitset[i]);
       }
       keyBits.push_back(parityBits.at(parityBits.size() - 1));
       //Number of character groups that will need to be encrypted
-      short charGroupCount = plainText.size() / HEX_CHARS_IN_BLOCK;
+      short charGroupCount = plainText.size() / CHARS_IN_BLOCK;
       //Collects output ciphertext
       string cipherText = "";
       //Loops for each character group
@@ -140,12 +142,12 @@ int main()
         vector<bool> curCharGroup;
 
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK * 2; j++)
+        for (short j = 0; j < CHARS_IN_BLOCK; j++)
         {
           curGroupChars.push_back(plainText.at((i*CHARS_IN_BLOCK)+j));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::hexToBits(curGroupChars);
+        curCharGroup = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output ciphertext to cipherText
         cipherText += cipher.encrypt(curCharGroup, keyBits);
       }
@@ -168,6 +170,7 @@ int main()
       clock_t startClock = clock();
       //Reads ciphertext and key text
       vector<char> cipherText = readInput(encryptOutFileName);
+      cout <<"size: " << cipherText.size() << endl;
       //If input text was of length 0 (such as when input fails)
       if ((cipherText.size() == 0))
       {
@@ -192,7 +195,7 @@ int main()
       keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       //Number of character groups that will need to be decrypted
-      short charGroupCount = cipherText.size() / HEX_CHARS_IN_BLOCK;
+      short charGroupCount = cipherText.size() / CHARS_IN_BLOCK;
       //Collects output plaintext
       string plainText = "";
       //Loops for each character group
@@ -203,7 +206,7 @@ int main()
         //Current character group represented as bits
         vector<bool> curCharGroup;
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < HEX_CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < CHARS_IN_BLOCK; j++)
         {
           curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
         }
