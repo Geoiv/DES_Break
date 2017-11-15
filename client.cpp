@@ -86,22 +86,22 @@ void *ThreadDecrypt(void *threadArg)
       unsigned short parityBitScale = parityBits.size();
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
-     {
-       if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-       {
-         keyBits.push_back(parityBits.at(currentParityBit));
-         currentParityBit++;
-       }
-       keyBits.push_back(keyBitset[i]);
-     }
-     keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      {
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        {
+          keyBits.push_back(parityBits.at(currentParityBit));
+          currentParityBit++;
+        }
+        keyBits.push_back(keyBitset[i]);
+      }
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       for (int j = 0; j < charGroupCount; j++)
       {
         //Holds characters of the current group
         vector<char> curGroupChars;
         //Current character group represented as bits
-        vector<bool> curCharGroup;
+        vector<bool> curCharGroupBits;
         //Loads 8 characters into curGroupChars
         for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
@@ -110,17 +110,17 @@ void *ThreadDecrypt(void *threadArg)
         }
         if (currentKey > 60 && currentKey < 70)
         {
-           cout << "curCharGroup before bits  " << endl;
-           for (int z = 0; z < curCharGroup.size(); z++)
-           {
-             cout << curCharGroup.at(z);
-           }
-           cout << endl;
+          cout << "curGroupChars before bits  " << endl;
+          for (int z = 0; z < curGroupChars.size(); z++)
+          {
+            cout << curGroupChars.at(z);
+          }
+          cout << endl;
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        curCharGroupBits = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
-        decryptResults += cipher.decrypt(curCharGroup, keyBits);
+        decryptResults += cipher.decrypt(curCharGroupBits, keyBits);
       }
       // if (currentKey > 60 && currentKey < 70)
       // {
@@ -336,7 +336,7 @@ int main()
 
 
   clock_t timeElapsed = clock() - (float)startClock;
-  cout << "Time elapsed for finding the DES key was " <<
+  cout << endl << "Time elapsed for finding the DES key was " <<
     (float)((timeElapsed / (float)CLOCKS_PER_SEC) * 1000) <<
     " milliseconds." << endl;
   return EXIT_SUCCESS;
