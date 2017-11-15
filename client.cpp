@@ -38,7 +38,6 @@ void *ThreadDecrypt(void *threadArg)
 
    DESCipher cipher;
    string decryptResults;
-   vector<bool> keyBits;
    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
    //Number of character groups that will need to be decrypted
    short charGroupCount = threadData->cipherText.size()/CHARS_IN_BLOCK;
@@ -63,6 +62,7 @@ void *ThreadDecrypt(void *threadArg)
    unsigned long currentKey;
    for (unsigned long i = 0; i < threadKeyRange; i++)
    {
+      vector<bool> keyBits;
       decryptResults = "";
       currentKey = threadData->startingKeyNum + i;
       //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
