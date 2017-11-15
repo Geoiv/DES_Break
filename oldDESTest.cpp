@@ -110,14 +110,23 @@ int main()
         return 0;
       }
       //Key represented as bits
-      vector<bool> keyBits;
 
-      unsigned int keyInt = 65;
-      bitset<64> keyIntBits(keyInt);
-      for (int i = 63; i >= 0; i--)
+      vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
+      unsigned short parityBitScale = parityBits.size();
+      //Key represented as bits
+      vector<bool> keyBits;
+      const int BITS_IN_KEY = 56;
+      int keyInt = 65;
+      bitset<BITS_IN_KEY> keyBitset(keyInt);
+      for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        keyBits.push_back(keyIntBits[i]);
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        {
+          keyBits.push_back(parityBits.at(i / parityBitScale));
+        }
+        keyBits.push_back(keyBitset[i]);
       }
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
       //Number of character groups that will need to be encrypted
       short charGroupCount = plainText.size() / HEX_CHARS_IN_BLOCK;
       //Collects output ciphertext
@@ -164,15 +173,23 @@ int main()
       {
         return 0;
       }
+
+      vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
+      unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-
+      const int BITS_IN_KEY = 56;
       int keyInt = 65;
-      bitset<64> keyIntBits(keyInt);
-      for (int i = 63; i >= 0; i--)
+      bitset<BITS_IN_KEY> keyBitset(keyInt);
+      for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        keyBits.push_back(keyIntBits[i]);
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        {
+          keyBits.push_back(parityBits.at(i / parityBitScale));
+        }
+        keyBits.push_back(keyBitset[i]);
       }
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       //Number of character groups that will need to be decrypted
       short charGroupCount = cipherText.size() / HEX_CHARS_IN_BLOCK;

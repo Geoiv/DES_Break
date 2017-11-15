@@ -6,6 +6,3 @@ const int MAX_LINE = 4096;
 const int CLIENT_COUNT = 2;
 //Max connections the server should listen for
 const int MAX_CONNS = 256;
-
-
-

@@ -95,7 +95,7 @@ void *ThreadDecrypt(void *threadArg)
             threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::hexToBits(curGroupChars);
+        curCharGroup = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
