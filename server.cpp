@@ -157,7 +157,6 @@ int main()
     }
   }
 
-  //TODO make sure all FDs are closed
 
   //Number of listener threads needed
   int listenerThreadCount = connectionFDs.size();

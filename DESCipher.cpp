@@ -14,14 +14,13 @@ using namespace std;
 
 const bool VERBOSE0 = false;
 const bool VERBOSE1 = false;
-const bool VERBOSEKEYS = true;
+const bool VERBOSEKEYS = false;
 
 DESCipher::DESCipher()
 {
 
 }
 
-//TODO will the fact that these are being indexed in reverse affect the found key?
 //IP Table, takes in vector of size 64, permutes it, and modifies
 //left and right vectors passed by reference to give plaintext halves
 void DESCipher::initPerm(vector<bool> inputVector, vector<bool>& leftText,
@@ -360,7 +359,7 @@ vector<bool> DESCipher::pTablePerm(vector<bool> inputVector)
 }
 
 //Converts characters to bits and places them in a vector of bools
-vector<bool> DESCipher::charsToBits(vector<char> inputVector)
+vector<bool> DESCipher::hexToBits(vector<char> inputVector)
 {
   vector<bool> outputVector;
   int hexValsInChar = 2;
@@ -380,13 +379,25 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
   }
   return outputVector;
 }
+vector<bool> DESCipher::charsToBits(vector<char> inputVector)
+{
+  vector<bool> outputVector;
+  for (short i = 0; i < CHARS_IN_BLOCK; i++)
+  {
+    bitset<BITS_IN_CHAR> temp(inputVector.at(i));
+    for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
+    {
+      outputVector.push_back(temp[j]);
+    }
+  }
+  return outputVector;
+}
 
 //Converts bits to chars and appends them to a string
 string DESCipher::bitsToChars(vector<bool> inputVector)
 {
   //Output string of converted binary values to be returned
   string outputText = "";
-  stringstream hexStream;
   //Loops for each character in the block
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
@@ -401,9 +412,7 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
     bitset<BITS_IN_CHAR> temp(tempString);
     //Adds converted character to the output text
     outputText += (char)temp.to_ulong();
-    //hexStream << hex << temp.to_ulong();
   }
-  //return hexStream.str();
   return outputText;
 }
 

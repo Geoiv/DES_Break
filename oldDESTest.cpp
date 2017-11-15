@@ -136,7 +136,7 @@ int main()
           curGroupChars.push_back(plainText.at((i*CHARS_IN_BLOCK)+j));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        curCharGroup = DESCipher::hexToBits(curGroupChars);
         //Encrypts current group and appends output ciphertext to cipherText
         cipherText += cipher.encrypt(curCharGroup, keyBits);
       }

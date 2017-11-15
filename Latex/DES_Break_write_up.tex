@@ -773,7 +773,6 @@ void *listenForClient(void * threadArg)
   pthread_exit(NULL);
 }
 
-//TODO is a new sockaddr_in required for each connection?
 int main()
 {
   pthread_barrier_init(&threadBarrier, NULL, 2);

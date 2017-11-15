@@ -279,7 +279,7 @@ void Cipher(long long int msg,long long int key){
 	int l0=(int)(msg>>32);
 	cout<<"Msg Left Int:= "<<l0<<"  Msg Right Int:= "<<r0<<endl;
 	pIP(l0,r0);
-	for (int i=1;i<17;i++){
+	for (int i=1;i<9;i++){
 		int t=2;
 		if (i==1||i==2||i==9||i==16){
 			t=1;

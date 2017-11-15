@@ -67,7 +67,8 @@ void *ThreadDecrypt(void *threadArg)
       currentKey = threadData->startingKeyNum + i;
       //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
       //" Starting Key Number : " << startingKeyNum << "    " <<
-      cout << " Current Key Number : " << threadData->startingKeyNum + i << "    " << endl;
+      cout << " Current Key Number : " << threadData->startingKeyNum + i <<
+        "    " << endl;
       bitset<BITS_IN_KEY> keyBitset (currentKey);
       //cout << "keyBits: " << keyBitset << endl;
       unsigned short parityBitScale = parityBits.size();
@@ -90,15 +91,15 @@ void *ThreadDecrypt(void *threadArg)
         //Loads 8 characters into curGroupChars
         for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
-          curGroupChars.push_back(threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
+          curGroupChars.push_back(
+            threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        curCharGroup = DESCipher::hexToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
       }
-      //TODO make sure that everything is either all uppercase or all lowercase
       if (decryptResults.compare(threadData->plainText) == 0)
       {
         const char* foundKey = to_string(currentKey).c_str();
@@ -167,7 +168,8 @@ vector<char> readInputAsVector(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = HEX_CHARS_IN_BLOCK - (readText.size() % HEX_CHARS_IN_BLOCK);
+    short charsToPad = HEX_CHARS_IN_BLOCK -
+      (readText.size() % HEX_CHARS_IN_BLOCK);
     if (charsToPad != HEX_CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
