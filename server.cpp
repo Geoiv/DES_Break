@@ -56,18 +56,25 @@ void *listenForClient(void * threadArg)
     int parityBitScale = parityBits.size();
     bitset<BITS_IN_KEY> initKeyBitset(stoi(initKeyString));
     string keyString = "";
+    char currentChar;
     for (int i = BITS_IN_KEY - 1; i >= 0; i--)
     {
       if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
       {
-        keyString += (parityBits.at(currentParityBit));
+        currentChar =(parityBits.at(currentParityBit) ? '1' : '0');
+        keyString += currentChar;
         currentParityBit++;
       }
-      keyString += initKeyBitset[i];
+      currentChar = (initKeyBitset[i] ? '1' : '0');
+      keyString += currentChar;
     }
-    keyString += (parityBits.at(parityBits.size() - 1));
+    currentChar = (parityBits.at(parityBits.size() - 1) ? '1' : '0');
+    keyString += currentChar;
+
     bitset<FULL_KEY_BITS> finalKeyBits(keyString);
+    cout << keyString << endl;
     cout << finalKeyBits << endl;
+
     //Successful receiving
     cout << "Key found by thread " << threadData->threadId << "!" << endl;
     cout << "Key: " << finalKeyBits.to_ulong() << endl;

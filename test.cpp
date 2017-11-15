@@ -24,24 +24,33 @@ void printVector(vector<bool> inputVec)
 
 int main()
 {
-  vector<bool> keyBits;
-  int currentKey = 0;
+  char recMsg[] = {'6', '5'};
+  string initKeyString(recMsg);
   int currentParityBit = 0;
   vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
-  unsigned short parityBitScale = parityBits.size();
-  bitset<BITS_IN_KEY> keyBitset(currentKey);
+  int parityBitScale = parityBits.size();
+  bitset<BITS_IN_KEY> initKeyBitset(stoi(initKeyString));
+
+  string keyString = "";
   for (int i = BITS_IN_KEY - 1; i >= 0; i--)
   {
+    char currentChar;
     if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
     {
-      keyBits.push_back(parityBits.at(currentParityBit));
+      currentChar =(parityBits.at(currentParityBit) ? '1' : '0');
+      keyString += currentChar;
       currentParityBit++;
     }
-    keyBits.push_back(keyBitset[i]);
+    currentChar = (initKeyBitset[i] ? '1' : '0');
+    keyString += currentChar;
   }
-  keyBits.push_back(parityBits.at(parityBits.size() - 1));
+  char currentChar = (parityBits.at(parityBits.size() - 1) ? '1' : '0');
+  keyString += currentChar;
+  cout << keyString << endl;
 
-  printVector(keyBits);
-
-
+  bitset<64> finalKeyBits(keyString);
+  cout << "hi" << endl;
+  cout << finalKeyBits << endl;
+  //Successful receiving
+  cout << "Key: " << finalKeyBits.to_ulong() << endl;
 }
