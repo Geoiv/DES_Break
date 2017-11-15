@@ -40,7 +40,18 @@ void *ThreadDecrypt(void *threadArg)
    string decryptResults;
    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
    //Number of character groups that will need to be decrypted
-   short charGroupCount = threadData->cipherText.size()/HEX_CHARS_IN_BLOCK;
+   short charGroupCount = threadData->cipherText.size()/CHARS_IN_BLOCK;
+   cout << "cipherText:  " << endl;
+   for (int z = 0; z < threadData->cipherText.size(); z++)
+   {
+     cout << threadData->cipherText.at(z);
+   }
+   cout << endl;
+   cout << "cipherText.size():  " << threadData->cipherText.size() << endl;
+
+   cout << "CHARS_IN_BLOCK:  " << CHARS_IN_BLOCK << endl;
+   cout << "charGroupCount:  " << charGroupCount << endl;
+
 
    unsigned long threadKeyRange;
 
@@ -53,22 +64,25 @@ void *ThreadDecrypt(void *threadArg)
    {
       threadKeyRange = THREAD_KEY_OFFSET;
    }
-
+   //unsigned long endingKeyNum = threadData->startingKeyNum + threadKeyRange;
+   // cout << "Client: " << threadData->clientId << endl;
+   // cout << "Thread: " << threadData->threadId << endl;
+   // cout << "  Key range: " << threadKeyRange << endl;
+   // cout << "  Space Min: " << threadData->startingKeyNum << endl;
+   // cout << "  Space Max: " << endingKeyNum << endl;
 
    unsigned long currentKey;
    for (unsigned long i = 0; i < threadKeyRange; i++)
    {
-      const int outputStep = 1000;
       vector<bool> keyBits;
       decryptResults = "";
       currentKey = threadData->startingKeyNum + i;
-      if (i % outputStep == 0)
-      {
-         cout << " Current Key Number : " << threadData->startingKeyNum + i <<
-           "    " << endl;
-      }
-
+      //cout << endl << "Thread ID:  " << threadData->threadId << "  " <<
+      //" Starting Key Number : " << startingKeyNum << "    " <<
+      cout << " Current Key Number : " << threadData->startingKeyNum + i <<
+        "    " << endl;
       bitset<BITS_IN_KEY> keyBitset (currentKey);
+      //cout << "keyBits: " << keyBitset << endl;
       unsigned short parityBitScale = parityBits.size();
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
@@ -89,17 +103,32 @@ void *ThreadDecrypt(void *threadArg)
         //Current character group represented as bits
         vector<bool> curCharGroupBits;
         //Loads 8 characters into curGroupChars
-        for (short k = 0; k < HEX_CHARS_IN_BLOCK; k++)
+        for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
           curGroupChars.push_back(
-            threadData->cipherText.at((j*HEX_CHARS_IN_BLOCK)+k));
+            threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
-
+        if (currentKey > 60 && currentKey < 70)
+        {
+          cout << "curGroupChars before bits  " << endl;
+          for (int z = 0; z < curGroupChars.size(); z++)
+          {
+            cout << curGroupChars.at(z);
+          }
+          cout << endl;
+        }
         //Converts current group to bit representation
-        curCharGroupBits = DESCipher::hexToBits(curGroupChars);
+        curCharGroupBits = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
         decryptResults += cipher.decrypt(curCharGroupBits, keyBits);
       }
+      // if (currentKey > 60 && currentKey < 70)
+      // {
+      //    cipher.printVector(keyBits);
+      //    cout << endl;
+      //    cout << decryptResults << endl;
+      //    cout << threadData->plainText << endl;
+      // }
       if (decryptResults.compare(threadData->plainText) == 0)
       {
         const char* foundKey = to_string(currentKey).c_str();
@@ -121,6 +150,7 @@ void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
 
    for( int i = 0; i < NUM_THREADS; i++ )
    {
+      // cout <<"main() : creating thread, " << i << endl;
       threadData[i].threadId = i;
       threadData[i].clientId = clientId;
       threadData[i].startingKeyNum = parentKeySpaceStart +
@@ -128,6 +158,10 @@ void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
       threadData[i].cliSockFileDesc = cliSockFileDesc;
       threadData[i].cipherText = cipherText;
       threadData[i].plainText = plainText;
+
+      // cout << "i: " << i << "  |  parentKeySpaceStart + " <<
+      //    "(i * THREAD_KEY_OFFSET): " << parentKeySpaceStart +
+      //    (i * THREAD_KEY_OFFSET) << endl;
 
       int resultCode = pthread_create(&threads[i], NULL, ThreadDecrypt, (
          void *)&threadData[i]);
@@ -163,9 +197,9 @@ vector<char> readInputAsVector(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = HEX_CHARS_IN_BLOCK -
-      (readText.size() % HEX_CHARS_IN_BLOCK);
-    if (charsToPad != HEX_CHARS_IN_BLOCK)
+    short charsToPad = CHARS_IN_BLOCK -
+      (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
@@ -179,6 +213,13 @@ vector<char> readInputAsVector(string inFileName)
     cout << "The file " << inFileName << "was not able to be opened." << endl;
     inTextFileStream.close();
   }
+  cout << "read text:  " <<  endl;
+  for (int z = 0; z < readText.size(); z++)
+  {
+    cout << readText.at(z);
+  }
+  cout << endl;
+  cout << "read text size:  " << readText.size() << endl;
   return readText;
 }
 

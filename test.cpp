@@ -26,16 +26,14 @@ int main()
 {
   vector<bool> keyBits;
   int currentKey = 0;
-  int currentParityBit = 0;
-  vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
+  vector<bool> parityBits = {1, 1, 1, 1, 1, 1, 1, 1};
   unsigned short parityBitScale = parityBits.size();
   bitset<BITS_IN_KEY> keyBitset(currentKey);
   for (int i = BITS_IN_KEY - 1; i >= 0; i--)
   {
     if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
     {
-      keyBits.push_back(parityBits.at(currentParityBit));
-      currentParityBit++;
+      keyBits.push_back(parityBits.at(i / parityBitScale));
     }
     keyBits.push_back(keyBitset[i]);
   }

@@ -358,23 +358,6 @@ vector<bool> DESCipher::pTablePerm(vector<bool> inputVector)
   return outputVector;
 }
 
-//Prints out binary values in a vector in separated groups of 8
-//(For testing purposes)
-void DESCipher::printVector(vector<bool> inputVec)
-{
-  //Prints each character
-  for (unsigned int i = 0; i < inputVec.size(); i++)
-  {
-    cout << inputVec.at(i);
-    //Inserts a space between each group of 8
-    if (((i + 1) % BITS_IN_CHAR == 0) && (i != 0))
-    {
-      cout << " ";
-    }
-  }
-  cout << endl;
-}
-
 //Converts characters to bits and places them in a vector of bools
 vector<bool> DESCipher::hexToBits(vector<char> inputVector)
 {
@@ -413,8 +396,6 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
 //Converts bits to chars and appends them to a string
 string DESCipher::bitsToChars(vector<bool> inputVector)
 {
-  DESCipher ciphertest;
-  ciphertest.printVector(inputVector);
   //Output string of converted binary values to be returned
   string outputText = "";
   //Loops for each character in the block
@@ -433,6 +414,23 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
     outputText += (char)temp.to_ulong();
   }
   return outputText;
+}
+
+//Prints out binary values in a vector in separated groups of 8
+//(For testing purposes)
+void DESCipher::printVector(vector<bool> inputVec)
+{
+  //Prints each character
+  for (unsigned int i = 0; i < inputVec.size(); i++)
+  {
+    cout << inputVec.at(i);
+    //Inserts a space between each group of 8
+    if (((i + 1) % BITS_IN_CHAR == 0) && (i != 0))
+    {
+      cout << " ";
+    }
+  }
+  cout << endl;
 }
 
 //Takes in a size 64 vector of booleans for both plaintext and the key
