@@ -72,8 +72,6 @@ void *listenForClient(void * threadArg)
     keyString += currentChar;
 
     bitset<FULL_KEY_BITS> finalKeyBits(keyString);
-    cout << keyString << endl;
-    cout << finalKeyBits << endl;
 
     //Successful receiving
     cout << "Key found by thread " << threadData->threadId << "!" << endl;
