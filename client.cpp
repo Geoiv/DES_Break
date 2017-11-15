@@ -15,7 +15,7 @@ using namespace std;
 
 const int BITS_IN_KEY = 56;
 const unsigned long TOTAL_KEYS = pow(2, BITS_IN_KEY);
-const short NUM_THREADS = 2;
+const short NUM_THREADS = 1;
 const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
@@ -99,6 +99,10 @@ void *ThreadDecrypt(void *threadArg)
         //Encrypts current group and appends output plaintext to plainText
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
+      }
+      if (currentKey > 64 && currentKey < 67)
+      {
+          cout << endl << decryptResults << endl;
       }
       if (decryptResults.compare(threadData->plainText) == 0)
       {
