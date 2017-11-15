@@ -100,9 +100,9 @@ void *ThreadDecrypt(void *threadArg)
 
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
       }
-      if (currentKey > 64 && currentKey < 67)
+      if (currentKey > 60 && currentKey < 70)
       {
-          cout << endl << decryptResults << endl;
+          cout << endl << cipher.printVector(keyBits) << endl;
       }
       if (decryptResults.compare(threadData->plainText) == 0)
       {
