@@ -57,6 +57,8 @@ class DESCipher
   public:
     DESCipher();
 
+    void printVector(std::vector<bool> inputVec);
+
     //Converts characters to bits and places them in a vector of bools
     static std::vector<bool> hexToBits(std::vector<char> inputVector);
     static std::vector<bool> charsToBits(std::vector<char> inputVector);
@@ -64,7 +66,7 @@ class DESCipher
     //Converts bits to chars and appends them to a string
     static std::string bitsToChars(std::vector<bool> inputVector);
 
-    void printVector(std::vector<bool> inputVec);
+
 
     //Takes in a size 64 vector of booleans for both plaintext and the key
     //and performs DES encryption on them. Returns string of ciphertext for the
