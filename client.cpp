@@ -41,6 +41,18 @@ void *ThreadDecrypt(void *threadArg)
    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
    //Number of character groups that will need to be decrypted
    short charGroupCount = threadData->cipherText.size()/CHARS_IN_BLOCK;
+   cout << "cipherText:  " << endl;
+   for (int z = 0; z < threadData->cipherText.size(); z++)
+   {
+     cout << threadData->cipherText.at(z);
+   }
+   cout << endl;
+   cout << "cipherText.size():  " << threadData->cipherText.size() << endl;
+
+   cout << "CHARS_IN_BLOCK:  " << CHARS_IN_BLOCK << endl;
+   cout << "charGroupCount:  " << charGroupCount << endl;
+
+
    unsigned long threadKeyRange;
 
    if (threadData->clientId == (CLIENT_COUNT - 1) &&
@@ -96,17 +108,27 @@ void *ThreadDecrypt(void *threadArg)
           curGroupChars.push_back(
             threadData->cipherText.at((j*CHARS_IN_BLOCK)+k));
         }
+        if (currentKey > 60 && currentKey < 70)
+        {
+           cout << "curCharGroup before bits  " << endl;
+           for (int z = 0; z < curCharGroup.size(); z++)
+           {
+             cout << curCharGroup.at(z);
+           }
+           cout << endl;
+        }
         //Converts current group to bit representation
         curCharGroup = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
-
         decryptResults += cipher.decrypt(curCharGroup, keyBits);
       }
-      if (currentKey > 60 && currentKey < 70)
-      {
-         cipher.printVector(keyBits);
-         cout << endl;
-      }
+      // if (currentKey > 60 && currentKey < 70)
+      // {
+      //    cipher.printVector(keyBits);
+      //    cout << endl;
+      //    cout << decryptResults << endl;
+      //    cout << threadData->plainText << endl;
+      // }
       if (decryptResults.compare(threadData->plainText) == 0)
       {
         const char* foundKey = to_string(currentKey).c_str();
@@ -175,9 +197,9 @@ vector<char> readInputAsVector(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = HEX_CHARS_IN_BLOCK -
-      (readText.size() % HEX_CHARS_IN_BLOCK);
-    if (charsToPad != HEX_CHARS_IN_BLOCK)
+    short charsToPad = CHARS_IN_BLOCK -
+      (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
@@ -191,6 +213,13 @@ vector<char> readInputAsVector(string inFileName)
     cout << "The file " << inFileName << "was not able to be opened." << endl;
     inTextFileStream.close();
   }
+  cout << "read text:  " <<  endl;
+  for (int z = 0; z < readText.size(); z++)
+  {
+    cout << readText.at(z);
+  }
+  cout << endl;
+  cout << "read text size:  " << readText.size() << endl;
   return readText;
 }
 
