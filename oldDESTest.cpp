@@ -115,22 +115,22 @@ int main()
       unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-      const int BITS_IN_KEY = 56;
+      const int BITS_IN_KEY = 64;
       int keyInt = 65;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-        {
-          keyBits.push_back(parityBits.at(currentParityBit));
-          currentParityBit++;
-        }
+        // if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        // {
+        //   keyBits.push_back(parityBits.at(currentParityBit));
+        //   currentParityBit++;
+        // }
         keyBits.push_back(keyBitset[i]);
       }
-      keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      // keyBits.push_back(parityBits.at(parityBits.size() - 1));
       //Number of character groups that will need to be encrypted
-      short charGroupCount = plainText.size() / CHARS_IN_BLOCK;
+      short charGroupCount = plainText.size() / HEX_CHARS_IN_BLOCK;
       //Collects output ciphertext
       string cipherText = "";
       //Loops for each character group
@@ -142,15 +142,16 @@ int main()
         vector<bool> curCharGroup;
 
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < HEX_CHARS_IN_BLOCK; j++)
         {
-          curGroupChars.push_back(plainText.at((i*CHARS_IN_BLOCK)+j));
+          curGroupChars.push_back(plainText.at((i*HEX_CHARS_IN_BLOCK)+j));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        curCharGroup = DESCipher::hexToBits(curGroupChars);
         //Encrypts current group and appends output ciphertext to cipherText
         cipherText += cipher.encrypt(curCharGroup, keyBits);
       }
+
       //Writes output ciphertext to text file
       writeOutput(cipherText, encryptOutFileName);
 
@@ -170,7 +171,6 @@ int main()
       clock_t startClock = clock();
       //Reads ciphertext and key text
       vector<char> cipherText = readInput(encryptOutFileName);
-      cout <<"size: " << cipherText.size() << endl;
       //If input text was of length 0 (such as when input fails)
       if ((cipherText.size() == 0))
       {
@@ -181,18 +181,18 @@ int main()
       unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-      const int BITS_IN_KEY = 56;
+      const int BITS_IN_KEY = 64;
       int keyInt = 65;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-        {
-          keyBits.push_back(parityBits.at(i / parityBitScale));
-        }
+        // if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        // {
+        //   keyBits.push_back(parityBits.at(i / parityBitScale));
+        // }
         keyBits.push_back(keyBitset[i]);
       }
-      keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      // keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       //Number of character groups that will need to be decrypted
       short charGroupCount = cipherText.size() / CHARS_IN_BLOCK;

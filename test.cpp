@@ -24,33 +24,11 @@ void printVector(vector<bool> inputVec)
 
 int main()
 {
-  char recMsg[] = {'6', '5'};
-  string initKeyString(recMsg);
-  int currentParityBit = 0;
-  vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
-  int parityBitScale = parityBits.size();
-  bitset<BITS_IN_KEY> initKeyBitset(stoi(initKeyString));
 
-  string keyString = "";
-  for (int i = BITS_IN_KEY - 1; i >= 0; i--)
-  {
-    char currentChar;
-    if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-    {
-      currentChar =(parityBits.at(currentParityBit) ? '1' : '0');
-      keyString += currentChar;
-      currentParityBit++;
-    }
-    currentChar = (initKeyBitset[i] ? '1' : '0');
-    keyString += currentChar;
-  }
-  char currentChar = (parityBits.at(parityBits.size() - 1) ? '1' : '0');
-  keyString += currentChar;
-  cout << keyString << endl;
-
-  bitset<64> finalKeyBits(keyString);
-  cout << "hi" << endl;
-  cout << finalKeyBits << endl;
-  //Successful receiving
-  cout << "Key: " << finalKeyBits.to_ulong() << endl;
+  int x = 5;
+  cout << "1: " << x << endl;
+  x = x>>1;
+  cout << "2: " << x << endl;
+  x = x<<1;
+  cout << "3: " << x << endl;
 }

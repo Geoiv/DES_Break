@@ -8,6 +8,7 @@
 #include <string>
 #include <stdio.h>
 #include <math.h>
+#include <bitset>
 using namespace std;
 
 void setB(int &i , int in,int loc){
@@ -34,25 +35,44 @@ int getV(int in,int b,int e){
 	return sum;
 }
 
-void pKEY(int &l,int &r){
+void pKEY(int &l,int &r)
+{
+  bitset<28> temp;
 	int map[56]={57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4};
 	int hl=l;
 	int hr=r;
-	for (int t=0;t<56;t++){
-		if (map[t]>32){
-			if (t>27){
+	for (int t=0;t<56;t++)
+  {
+    //If bit comes from right half of original key
+		if (map[t]>32)
+    {
+      //If bit is in right half of key
+			if (t>27)
+      {
 				setB(hr,getB(r,map[t]-32),t-27);
+				temp = hr;
+        // cout << t << " " << temp << endl;
 			}
-			else{
+			else
+      {
 				setB(hl,getB(r,map[t]-32),t+1);
+        temp = hl;
+        // cout << t << " " << temp << endl;
 			}
 		}
-		else{
-			if (t>27){
+		else
+    {
+			if (t>27)
+      {
 				setB(hr,getB(l,map[t]),t-27);
+				temp = hr;
+        // cout << t << " " << temp << endl;
 			}
-			else{
+			else
+      {
 				setB(hl,getB(l,map[t]),t+1);
+        temp = hl;
+        // cout << t << " " << temp << endl;
 			}
 		}
 
@@ -60,10 +80,25 @@ void pKEY(int &l,int &r){
 	r=hr;
 	l=hl;
 
+  //temp = r;
+  // cout << "0R: " << temp << endl;
 	r=r>>4;
+  temp = r;
+  // cout << "1R: " << temp << endl;
 	r=r<<4;
+  temp = r;
+  // cout << "2R: " << temp << endl;
+  temp = l;
+  // cout << "0L: " << temp << endl;
 	l=l>>4;
+  temp = l;
+  // cout << "1L: " << temp << endl;
 	l=l<<4;
+  temp = l;
+  // cout << "2L: " << temp << endl;
+  bitset<28> temp1(l);
+  bitset<28> temp2(r);
+  cout << temp1 << " " << temp2 << endl;
 }
 
 void pSUBKEY(int &l,int &r){
@@ -279,13 +314,19 @@ void Cipher(long long int msg,long long int key){
 	int l0=(int)(msg>>32);
 	cout<<"Msg Left Int:= "<<l0<<"  Msg Right Int:= "<<r0<<endl;
 	pIP(l0,r0);
-	for (int i=1;i<17;i++){
+	for (int i=1;i<17;i++)
+  {
 		int t=2;
-		if (i==1||i==2||i==9||i==16){
+		if (i==1||i==2||i==9||i==16)
+    {
 			t=1;
 		}
 		c0=shiftL(c0,28,t);
 		d0=shiftL(d0,28,t);
+    bitset<28> temp1(c0);
+    bitset<28> temp2(d0);
+    // cout << i << endl;
+    // cout << "  " << temp1 << " " << temp2 << endl;
 		kl=c0;
 		kr=d0;
 		pSUBKEY(kl,kr);
@@ -311,7 +352,7 @@ int main (){
 	//long long int keya[8]={56,98,121,116,101,107,101,121};
 	//long long int msga[8]={109,101,115,115,97,103,101,46};
 	long long int msg=8315161643091326073;//=7882833662174520622;
-	long long int key=65;//=4062943354666313081;
+	long long int key=1383827165325090801;//=4062943354666313081;
 	// for (int i=0;i<8;i++){
 	// 	msg+=(msga[i]<<((7-i)*8));
 	// }

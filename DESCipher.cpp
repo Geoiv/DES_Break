@@ -275,7 +275,7 @@ vector<bool> DESCipher::sBoxSub(vector<bool> rightTextI)
   tempBox.push_back(tempRow);
   tempRow = {7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8};
   tempBox.push_back(tempRow);
-  tempRow = {15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13};
+  tempRow = {2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11};
   tempBox.push_back(tempRow);
   sBoxes.push_back(tempBox);
 
@@ -625,7 +625,6 @@ string DESCipher::decrypt(vector<bool> cipherTextBits, vector<bool> keyBits)
   initPerm(cipherTextBits, leftTextI, rightTextI);
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
-
   if (VERBOSE0)
   {
     cout << "Original ciphertext: \n";
