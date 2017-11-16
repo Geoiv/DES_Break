@@ -13,7 +13,7 @@ Brandon Crane, Matt Frederick, Monica Singh, & George Wood
 
 #include "DESCipher.h"
 using namespace std;
-
+const int BITS_IN_KEY = 56;
 //Reads input from a text file with specified name
 vector<char> readInput(string inFileName)
 {
@@ -115,22 +115,21 @@ int main()
       unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-      const int BITS_IN_KEY = 64;
       int keyInt = 65;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        // if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-        // {
-        //   keyBits.push_back(parityBits.at(currentParityBit));
-        //   currentParityBit++;
-        // }
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        {
+          keyBits.push_back(parityBits.at(currentParityBit));
+          currentParityBit++;
+        }
         keyBits.push_back(keyBitset[i]);
       }
-      // keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
       //Number of character groups that will need to be encrypted
-      short charGroupCount = plainText.size() / HEX_CHARS_IN_BLOCK;
+      short charGroupCount = plainText.size() / CHARS_IN_BLOCK;
       //Collects output ciphertext
       string cipherText = "";
       //Loops for each character group
@@ -142,12 +141,12 @@ int main()
         vector<bool> curCharGroup;
 
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < HEX_CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < CHARS_IN_BLOCK; j++)
         {
-          curGroupChars.push_back(plainText.at((i*HEX_CHARS_IN_BLOCK)+j));
+          curGroupChars.push_back(plainText.at((i*CHARS_IN_BLOCK)+j));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::hexToBits(curGroupChars);
+        curCharGroup = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output ciphertext to cipherText
         cipherText += cipher.encrypt(curCharGroup, keyBits);
       }
@@ -181,21 +180,23 @@ int main()
       unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-      const int BITS_IN_KEY = 64;
+
       int keyInt = 65;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
+      int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
       {
-        // if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
-        // {
-        //   keyBits.push_back(parityBits.at(i / parityBitScale));
-        // }
+        if (((i + 1) % (parityBitScale - 1)) == 0 && (i != BITS_IN_KEY - 1))
+        {
+          keyBits.push_back(parityBits.at(currentParityBit));
+          currentParityBit++;
+        }
         keyBits.push_back(keyBitset[i]);
       }
-      // keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      keyBits.push_back(parityBits.at(parityBits.size() - 1));
 
       //Number of character groups that will need to be decrypted
-      short charGroupCount = cipherText.size() / CHARS_IN_BLOCK;
+      short charGroupCount = cipherText.size() / HEX_CHARS_IN_BLOCK;
       //Collects output plaintext
       string plainText = "";
       //Loops for each character group
@@ -206,12 +207,12 @@ int main()
         //Current character group represented as bits
         vector<bool> curCharGroup;
         //Loads 8 characters into curGroupChars
-        for (short j = 0; j < CHARS_IN_BLOCK; j++)
+        for (short j = 0; j < HEX_CHARS_IN_BLOCK; j++)
         {
-          curGroupChars.push_back(cipherText.at((i*CHARS_IN_BLOCK)+j));
+          curGroupChars.push_back(cipherText.at((i*HEX_CHARS_IN_BLOCK)+j));
         }
         //Converts current group to bit representation
-        curCharGroup = DESCipher::charsToBits(curGroupChars);
+        curCharGroup = DESCipher::hexToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
 
         plainText += cipher.decrypt(curCharGroup, keyBits);
