@@ -24,11 +24,26 @@ void printVector(vector<bool> inputVec)
 
 int main()
 {
+  //String to hold the binary of the current character
+  int tempInt = 11;
+  //Adds bits for current character to string
 
-  int x = 5;
-  cout << "1: " << x << endl;
-  x = x>>1;
-  cout << "2: " << x << endl;
-  x = x<<1;
-  cout << "3: " << x << endl;
+  stringstream hexStream;
+  string hexTemp;
+  //Puts bits in a bitset
+  bitset<BITS_IN_CHAR> temp(tempInt);
+  hexStream << hex << temp.to_ulong();
+  hexTemp = hexStream.str();
+  //cout << hexTemp << endl;
+  //Adds converted character to the output text
+  cout << hexTemp << " " << hexTemp.length() << endl;
+  if (hexTemp.length() < 2)
+  {
+    hexTemp = "0" + hexTemp;
+  }
+  cout << hexTemp << endl;
+  // bitset<8> temp("1");
+  //
+  // cout << temp << endl;
+  // cout << hex << temp.to_ulong() << endl;
 }

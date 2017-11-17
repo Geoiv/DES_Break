@@ -55,16 +55,21 @@ class DESCipher
     std::vector<bool> pTablePerm(std::vector<bool> inputVector);
 
   public:
+    //Default constructor
     DESCipher();
-
+    //Prints vectors for testing
     void printVector(std::vector<bool> inputVec);
 
-    //Converts characters to bits and places them in a vector of bools
+
+    //Converts hex to bits and places them in a vector of bools
     static std::vector<bool> hexToBits(std::vector<char> inputVector);
+    //Converts characters to bits and places them in a vector of bools
     static std::vector<bool> charsToBits(std::vector<char> inputVector);
 
     //Converts bits to chars and appends them to a string
     static std::string bitsToChars(std::vector<bool> inputVector);
+    //Converts bits to hex and appends them to a string
+    static std::string bitsToHex(std::vector<bool> inputVector);
 
 
 

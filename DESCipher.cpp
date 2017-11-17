@@ -375,7 +375,7 @@ void DESCipher::printVector(vector<bool> inputVec)
   cout << endl;
 }
 
-//Converts characters to bits and places them in a vector of bools
+//Converts hex to bits and places them in a vector of bools
 vector<bool> DESCipher::hexToBits(vector<char> inputVector)
 {
   vector<bool> outputVector;
@@ -401,6 +401,7 @@ vector<bool> DESCipher::charsToBits(vector<char> inputVector)
   vector<bool> outputVector;
   for (short i = 0; i < CHARS_IN_BLOCK; i++)
   {
+    //cout << inputVector.at(i);
     bitset<BITS_IN_CHAR> temp(inputVector.at(i));
     for(short j = BITS_IN_CHAR - 1; j >= 0; j--)
     {
@@ -432,6 +433,37 @@ string DESCipher::bitsToChars(vector<bool> inputVector)
   }
   return outputText;
 }
+//Converts bits to hex and appends them to a string
+string DESCipher::bitsToHex(vector<bool> inputVector)
+{
+  //Output string of converted binary values to be returned
+  string outputText = "";
+  //Loops for each character in the block
+  for (short i = 0; i < CHARS_IN_BLOCK; i++)
+  {
+    //String to hold the binary of the current character
+    string tempString = "";
+    //Adds bits for current character to string
+    for (short j = 0; j < BITS_IN_CHAR; j++)
+    {
+      tempString += (inputVector.at((i * CHARS_IN_BLOCK) + j) ? "1" : "0");
+    }
+    stringstream hexStream;
+    string hexTemp;
+    //Puts bits in a bitset
+    bitset<BITS_IN_CHAR> temp(tempString);
+    hexStream << hex << temp.to_ulong();
+    hexTemp = hexStream.str();
+    if (hexTemp.length() < 2)
+    {
+      hexTemp = "0" + hexTemp;
+    }
+    //cout << hexTemp << endl;
+    //Adds converted character to the output text
+    outputText += hexTemp;
+  }
+  return outputText;
+}
 
 //Takes in a size 64 vector of booleans for both plaintext and the key
 //and performs DES encryption on them. Returns string of ciphertext for the
@@ -458,7 +490,7 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
 
-  if (VERBOSE0)
+  if (true)
   {
     cout << "Original plaintext: \n";
     printVector(plainTextBits);
@@ -591,7 +623,7 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
   }
 
   //Converts binary values back to characters
-  cipherText = bitsToChars(rightTextI);
+  cipherText = bitsToHex(rightTextI);
 
   if (VERBOSE0)
   {
@@ -625,7 +657,7 @@ string DESCipher::decrypt(vector<bool> cipherTextBits, vector<bool> keyBits)
   initPerm(cipherTextBits, leftTextI, rightTextI);
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
-  if (VERBOSE0)
+  if (true)
   {
     cout << "Original ciphertext: \n";
     printVector(cipherTextBits);
