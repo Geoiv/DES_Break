@@ -230,7 +230,7 @@ int main()
   /*ONE MUST BE UNCOMMENTED FOR FUNCTIONING PROGRAM
   "127.0.0.1" IS FOR LOCALHOST TESTING*/
 
-  targetIP = "150.243.157.214";
+  targetIP = "165.227.250.233";
   //targetIP = "127.0.0.1";
 
   //File descriptor for this client's socket
