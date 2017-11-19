@@ -490,7 +490,7 @@ string DESCipher::encrypt(vector<bool> plainTextBits, vector<bool> keyBits)
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
 
-  if (true)
+  if (VERBOSE0)
   {
     cout << "Original plaintext: \n";
     printVector(plainTextBits);
@@ -657,7 +657,7 @@ string DESCipher::decrypt(vector<bool> cipherTextBits, vector<bool> keyBits)
   initPerm(cipherTextBits, leftTextI, rightTextI);
   //Applies PC-1 table to key and splits it into halves
   pc1Perm(keyBits, leftKey, rightKey);
-  if (true)
+  if (VERBOSE0)
   {
     cout << "Original ciphertext: \n";
     printVector(cipherTextBits);

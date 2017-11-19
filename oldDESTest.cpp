@@ -115,7 +115,7 @@ int main()
       unsigned short parityBitScale = parityBits.size();
       //Key represented as bits
       vector<bool> keyBits;
-      int keyInt = 65;
+      int keyInt = 2048;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
@@ -128,6 +128,7 @@ int main()
         keyBits.push_back(keyBitset[i]);
       }
       keyBits.push_back(parityBits.at(parityBits.size() - 1));
+      cipher.printVector(keyBits);
       //Number of character groups that will need to be encrypted
       short charGroupCount = plainText.size() / CHARS_IN_BLOCK;
       //Collects output ciphertext
@@ -181,7 +182,7 @@ int main()
       //Key represented as bits
       vector<bool> keyBits;
 
-      int keyInt = 65;
+      int keyInt = 2048;
       bitset<BITS_IN_KEY> keyBitset(keyInt);
       int currentParityBit = 0;
       for (int i = BITS_IN_KEY - 1; i >= 0; i--)
