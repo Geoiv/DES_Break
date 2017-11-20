@@ -63,7 +63,8 @@ void *ThreadDecrypt(void *threadArg)
       currentKey = threadData->startingKeyNum + i;
       if (i % outputStep == 0)
       {
-         cout << " Current Key Number : " << threadData->startingKeyNum + i <<
+         cout << "Thread: " << threadData->threadID <<
+           " Current Key Number : " << threadData->startingKeyNum + i <<
            "    " << endl;
       }
 
@@ -295,7 +296,7 @@ int main()
 
   clock_t timeElapsed = clock() - (float)startClock;
   cout << endl << "Time elapsed for finding the DES key was " <<
-    (float)((timeElapsed / (float)CLOCKS_PER_SEC) * 1000) <<
-    " milliseconds." << endl;
+    (float)((timeElapsed / (float)CLOCKS_PER_SEC)) <<
+    " seconds." << endl;
   return EXIT_SUCCESS;
 }
