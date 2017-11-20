@@ -102,6 +102,7 @@ void *ThreadDecrypt(void *threadArg)
       }
       if (decryptResults.compare(threadData->plainText) == 0)
       {
+        cout << "Key found by this thread!" << endl;
         const char* foundKey = to_string(currentKey).c_str();
         send(threadData->cliSockFileDesc, foundKey, sizeof(foundKey), 0);
       }
@@ -295,7 +296,7 @@ int main()
 
 
   clock_t timeElapsed = clock() - (float)startClock;
-  cout << endl << "Time elapsed for finding the DES key was " <<
+  cout << endl << "Execution time for this client was " <<
     (float)((timeElapsed / (float)CLOCKS_PER_SEC)) <<
     " seconds." << endl;
   return EXIT_SUCCESS;
