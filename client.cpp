@@ -63,7 +63,7 @@ void *ThreadDecrypt(void *threadArg)
       currentKey = threadData->startingKeyNum + i;
       if (i % outputStep == 0)
       {
-         cout << "Thread: " << threadData->threadID <<
+         cout << "Thread: " << threadData->threadId <<
            " Current Key Number : " << threadData->startingKeyNum + i <<
            "    " << endl;
       }
