@@ -14,7 +14,7 @@
 using namespace std;
 
 const unsigned long TOTAL_KEYS = pow(2, BITS_IN_KEY);
-const short NUM_THREADS = 5;
+const short NUM_THREADS = 10;
 const int TOTAL_THREADS = NUM_THREADS * CLIENT_COUNT;
 const unsigned long THREAD_KEY_OFFSET = TOTAL_KEYS/TOTAL_THREADS;
 // Have threads explore a few more keys than they're assigned to account for
