@@ -26,8 +26,8 @@ struct thread_data
    int clientId;
    unsigned long startingKeyNum;
    int cliSockFileDesc;
-   vector<char> cipherText;
-   string plainText;
+   string cipherText;
+   vector<char> plainText;
 };
 
 void *ThreadDecrypt(void *threadArg)
@@ -39,7 +39,7 @@ void *ThreadDecrypt(void *threadArg)
    string decryptResults;
    vector<bool> parityBits = {0, 0, 1, 1, 1, 1, 0, 0};
    //Number of character groups that will need to be decrypted
-   short charGroupCount = threadData->cipherText.size()/HEX_CHARS_IN_BLOCK;
+   short charGroupCount = threadData->plainText.size()/CHARS_IN_BLOCK;
 
    unsigned long threadKeyRange;
 
@@ -89,18 +89,18 @@ void *ThreadDecrypt(void *threadArg)
         //Current character group represented as bits
         vector<bool> curCharGroupBits;
         //Loads 8 characters into curGroupChars
-        for (short k = 0; k < HEX_CHARS_IN_BLOCK; k++)
+        for (short k = 0; k < CHARS_IN_BLOCK; k++)
         {
           curGroupChars.push_back(
-            threadData->cipherText.at((j*HEX_CHARS_IN_BLOCK)+k));
+            threadData->plainText.at((j*CHARS_IN_BLOCK)+k));
         }
 
         //Converts current group to bit representation
-        curCharGroupBits = DESCipher::hexToBits(curGroupChars);
+        curCharGroupBits = DESCipher::charsToBits(curGroupChars);
         //Encrypts current group and appends output plaintext to plainText
-        decryptResults += cipher.decrypt(curCharGroupBits, keyBits);
+        decryptResults += cipher.encrypt(curCharGroupBits, keyBits);
       }
-      if (decryptResults.compare(threadData->plainText) == 0)
+      if (decryptResults.compare(threadData->cipherText) == 0)
       {
         cout << "Key found by this thread!" << endl;
         const char* foundKey = to_string(currentKey).c_str();
@@ -164,9 +164,9 @@ vector<char> readInputAsVector(string inFileName)
     }
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = HEX_CHARS_IN_BLOCK -
-      (readText.size() % HEX_CHARS_IN_BLOCK);
-    if (charsToPad != HEX_CHARS_IN_BLOCK)
+    short charsToPad = CHARS_IN_BLOCK -
+      (readText.size() % CHARS_IN_BLOCK);
+    if (charsToPad != CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
@@ -196,12 +196,13 @@ string readInputAsString(string inFileName)
                      istreambuf_iterator<char>());
     inTextFileStream.close();
     //Gets number of characters that must be padded
-    short charsToPad = CHARS_IN_BLOCK - (readText.size() % CHARS_IN_BLOCK);
-    if (charsToPad != CHARS_IN_BLOCK)
+    short charsToPad = HEX_CHARS_IN_BLOCK -
+      (readText.size() % HEX_CHARS_IN_BLOCK);
+    if (charsToPad != HEX_CHARS_IN_BLOCK)
     {
       for(short i = 0; i < charsToPad; i++)
       {
-        readText.push_back('x');
+        readText.push_back('0');
       }
     }
     return readText;
@@ -223,9 +224,9 @@ int main()
   //File to read plaintext from
   string plainTextFileName = "pt.txt";
   //Reads ciphertext as a vector of chars
-  vector<char> cipherText = readInputAsVector(cipherTextFileName);
+  string cipherText = readInputAsString(cipherTextFileName);
   //Reads the plaintext as a string
-  string plainText = readInputAsString(plainTextFileName);
+  vector<char> plainText = readInputAsVector(plainTextFileName);
 
   //IP the client must connect to
   string targetIP;
