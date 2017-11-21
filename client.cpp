@@ -110,8 +110,8 @@ void *ThreadDecrypt(void *threadArg)
    pthread_exit(NULL);
 }
 
-void parentMethod(int clientId, int cliSockFileDesc, vector<char> cipherText,
-                  string plainText)
+void parentMethod(int clientId, int cliSockFileDesc, string cipherText,
+                  vector<char> plainText)
 {
    pthread_t threads[NUM_THREADS];
    struct thread_data threadData[NUM_THREADS];
