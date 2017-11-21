@@ -78,7 +78,7 @@ void writeOutput(string inputString, string fileName)
 int main()
 {
   //Filenames for input/output text files
-  string ptFileName = "pt.txt";
+  string ptFileName = "80000Char.txt";
   string encryptOutFileName = "ct.txt";
   string decryptOutFileName = "decryptResults.txt";
 
